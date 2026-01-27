@@ -1,0 +1,19 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (SenmagDesktop.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  main.cpp
+F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\SenmagDesktop\mathTypes.h(7,28): warning C4305: 'initializing': truncation from 'double' to 'float'
+  (compiling source file 'main.cpp')
+  
+F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\SenmagDesktop\mathTypes.h(8,30): warning C4305: 'initializing': truncation from 'double' to 'float'
+  (compiling source file 'main.cpp')
+  
+F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\SenmagDesktop\mathTypes.h(265,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'main.cpp')
+  
+F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\SenmagDesktop\SenmagConnect\commsTypes.h(37,2): warning C4091: 'typedef ': ignored on left of 'CommsPacketType' when no variable is declared
+  (compiling source file 'main.cpp')
+  
+F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\SenmagDesktop\main.cpp(5,17): warning C4326: return type of 'main' should be 'int' instead of 'void'
+F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\SenmagDesktop\main.cpp(13,47): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\SenmagDesktop\main.cpp(14,47): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\SenmagDesktop\main.cpp(15,31): warning C4305: '=': truncation from 'double' to 'float'
+  SenmagDesktop.vcxproj -> F:\Users\Gareth\Documents\Senmag\OpenForce\Senmag Desktop\SenmagDesktop\x64\Debug\FFUIDesktop.exe

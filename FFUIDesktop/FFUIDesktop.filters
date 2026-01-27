@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="SenmagConnect">
+      <UniqueIdentifier>{6d087a7e-aa43-468a-88e4-70d580db16d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HapticObjects">
+      <UniqueIdentifier>{39aab7f7-4a70-4c19-b923-7fd1d302e74d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HapticObjects\Header Files">
+      <UniqueIdentifier>{9c2aadc6-51c2-4871-8770-64f8d7f2c0c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HapticObjects\Source">
+      <UniqueIdentifier>{d4447dfc-eb91-45ce-b465-9e98f72ac3f0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FFUIDesktop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SenmagConnect\DeviceManager.cpp">
+      <Filter>SenmagConnect</Filter>
+    </ClCompile>
+    <ClCompile Include="SenmagConnect\SenmagConnect.cpp">
+      <Filter>SenmagConnect</Filter>
+    </ClCompile>
+    <ClCompile Include="SenmagConnect\SerialComms.cpp">
+      <Filter>SenmagConnect</Filter>
+    </ClCompile>
+    <ClCompile Include="HapticObjects\SolidPlane.cpp">
+      <Filter>HapticObjects\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HapticObjects\FFUIDesktop_object.cpp">
+      <Filter>HapticObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="HapticObjects\HapticVibration.cpp">
+      <Filter>HapticObjects</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FFUIDesktop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mathTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SenmagConnect\DeviceManager.h">
+      <Filter>SenmagConnect</Filter>
+    </ClInclude>
+    <ClInclude Include="SenmagConnect\SenmagConnect.h">
+      <Filter>SenmagConnect</Filter>
+    </ClInclude>
+    <ClInclude Include="SenmagConnect\SerialComms.h">
+      <Filter>SenmagConnect</Filter>
+    </ClInclude>
+    <ClInclude Include="SenmagConnect\CDM-v2.12.36.20-WHQL-Certified\ftd2xx.h">
+      <Filter>SenmagConnect</Filter>
+    </ClInclude>
+    <ClInclude Include="SenmagConnect\commsTypes.h">
+      <Filter>SenmagConnect</Filter>
+    </ClInclude>
+    <ClInclude Include="HapticObjects\SolidPlane.h">
+      <Filter>HapticObjects\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HapticObjects\FFUIDesktop_object.h">
+      <Filter>HapticObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="HapticObjects\HapticVibration.h">
+      <Filter>HapticObjects</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
