@@ -1,92 +1,36 @@
-﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (SenmagDesktop.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  FFUIDesktop_object.cpp
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(7,28): warning C4305: 'initializing': truncation from 'double' to 'float'
-  (compiling source file 'HapticObjects/FFUIDesktop_object.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(8,30): warning C4305: 'initializing': truncation from 'double' to 'float'
-  (compiling source file 'HapticObjects/FFUIDesktop_object.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(265,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  (compiling source file 'HapticObjects/FFUIDesktop_object.cpp')
-  
-  HapticVibration.cpp
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(7,28): warning C4305: 'initializing': truncation from 'double' to 'float'
-  (compiling source file 'HapticObjects/HapticVibration.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(8,30): warning C4305: 'initializing': truncation from 'double' to 'float'
-  (compiling source file 'HapticObjects/HapticVibration.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(265,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  (compiling source file 'HapticObjects/HapticVibration.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(27,144): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(42,17): warning C4244: 'initializing': conversion from '_Rep' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(42,17): warning C4244:         with
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(42,17): warning C4244:         [
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(42,17): warning C4244:             _Rep=__int64
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(42,17): warning C4244:         ]
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(45,46): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(56,144): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(56,112): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\HapticVibration.cpp(62,87): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  SolidPlane.cpp
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(7,28): warning C4305: 'initializing': truncation from 'double' to 'float'
-  (compiling source file 'HapticObjects/SolidPlane.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(8,30): warning C4305: 'initializing': truncation from 'double' to 'float'
-  (compiling source file 'HapticObjects/SolidPlane.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(265,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  (compiling source file 'HapticObjects/SolidPlane.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\SolidPlane.cpp(15,42): warning C4305: '=': truncation from 'double' to 'float'
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\SolidPlane.cpp(16,46): warning C4305: '=': truncation from 'double' to 'float'
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\HapticObjects\SolidPlane.cpp(17,45): warning C4305: '=': truncation from 'double' to 'float'
-  main.cpp
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(7,28): warning C4305: 'initializing': truncation from 'double' to 'float'
-  (compiling source file 'main.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(8,30): warning C4305: 'initializing': truncation from 'double' to 'float'
-  (compiling source file 'main.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(265,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  (compiling source file 'main.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\SenmagConnect\commsTypes.h(37,2): warning C4091: 'typedef ': ignored on left of 'CommsPacketType' when no variable is declared
-  (compiling source file 'main.cpp')
-  
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\main.cpp(5,17): warning C4326: return type of 'main' should be 'int' instead of 'void'
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\main.cpp(13,47): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\main.cpp(14,47): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\main.cpp(15,31): warning C4305: '=': truncation from 'double' to 'float'
+﻿C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Microsoft\VC\v180\Microsoft.CppBuild.targets(548,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (SenmagDesktop.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   FFUIDesktop.cpp
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(7,28): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\mathTypes.h(7,28): warning C4305: 'initializing': truncation from 'double' to 'float'
   (compiling source file 'FFUIDesktop.cpp')
   
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(8,30): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\mathTypes.h(8,30): warning C4305: 'initializing': truncation from 'double' to 'float'
   (compiling source file 'FFUIDesktop.cpp')
   
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\mathTypes.h(265,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\mathTypes.h(265,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   (compiling source file 'FFUIDesktop.cpp')
   
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\SenmagConnect\commsTypes.h(37,2): warning C4091: 'typedef ': ignored on left of 'CommsPacketType' when no variable is declared
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\SenmagConnect\commsTypes.h(23,14): warning C4091: 'typedef ': ignored on left of 'CommsPacketType' when no variable is declared
   (compiling source file 'FFUIDesktop.cpp')
   
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(15,39): warning C4305: '=': truncation from 'double' to 'float'
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(20,59): warning C4305: '=': truncation from 'double' to 'float'
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(159,60): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(160,60): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(206,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(206,24): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  DeviceManager.cpp
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\SenmagConnect\commsTypes.h(37,2): warning C4091: 'typedef ': ignored on left of 'CommsPacketType' when no variable is declared
-  (compiling source file 'SenmagConnect/DeviceManager.cpp')
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(187,60): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(188,60): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(236,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\FFUIDesktop.cpp(236,24): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  main.cpp
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\mathTypes.h(7,28): warning C4305: 'initializing': truncation from 'double' to 'float'
+  (compiling source file 'main.cpp')
   
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\SenmagConnect\DeviceManager.cpp(23,20): warning C4018: '<': signed/unsigned mismatch
-  SenmagConnect.cpp
-  SerialComms.cpp
-F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\FFUIDesktop\SenmagConnect\commsTypes.h(37,2): warning C4091: 'typedef ': ignored on left of 'CommsPacketType' when no variable is declared
-  (compiling source file 'SenmagConnect/SerialComms.cpp')
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\mathTypes.h(8,30): warning C4305: 'initializing': truncation from 'double' to 'float'
+  (compiling source file 'main.cpp')
   
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\mathTypes.h(265,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'main.cpp')
+  
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\SenmagConnect\commsTypes.h(23,14): warning C4091: 'typedef ': ignored on left of 'CommsPacketType' when no variable is declared
+  (compiling source file 'main.cpp')
+  
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\main.cpp(12,50): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\main.cpp(13,50): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\FFUIDesktop\main.cpp(14,34): warning C4305: '=': truncation from 'double' to 'float'
   Generating Code...
-  FFUIDesktop.vcxproj -> F:\Users\Gareth\Documents\Senmag\OpenForce\FFUI\GIT\FFUI_Desktop\x64\Debug\FFUIDesktop.exe
+  FFUIDesktop.vcxproj -> C:\Users\SajjadKH\Documents\GitHub\FFUI_Desktop\x64\Debug\FFUIDesktop.exe
