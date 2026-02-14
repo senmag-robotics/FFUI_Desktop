@@ -1,0 +1,25 @@
+# User-specific Visual Studio settings
+.vs/
+*.user
+*.suo
+
+# Build output folders (for all configurations)
+x64/
+Debug/
+Release/
+
+# Intermediate build files
+*.obj
+*.pdb
+*.ipch
+*.tlog
+*.log
+*.idb
+*.ilk
+*.aps
+*.recipe
+
+# IntelliSense databases
+*.db
+*.db-shm
+*.db-wal
