@@ -9,7 +9,7 @@
 
 #include "HapticVibration.h"
 #include "SolidPlane.h"
-
+#include "ButtonObject.h"
 #define DEVICE_WORKSPACE_X	200
 #define DEVICE_WORKSPACE_Y	100
 
@@ -53,6 +53,9 @@ public:
 	std::vector<std::unique_ptr<FFUIObject>> objects;
 
 private:
+	void addBoundaryPlanes();
+	void addDemoObjects(); // e.g., buttons/icons later
+
 	FFUIDesktop_Config	desktopConfig;
 
 	Vector2 cursorPos;

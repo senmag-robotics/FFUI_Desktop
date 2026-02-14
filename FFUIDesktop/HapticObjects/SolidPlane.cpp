@@ -32,15 +32,21 @@ Vector3 SolidPlane::calculateInteractionForce(Location localLoc) {
 	Vector3 force = Vector3(0, 0, 0);
 	if (localLoc.position.y < 0) {
 		float reactionForce = 0;
-		if (
-		(localLoc.position.x > objectMeta.globalPosition.x - objectMeta.scale.x / 2 && localLoc.position.x < objectMeta.globalPosition.x + objectMeta.scale.x / 2)
-		&& (localLoc.position.z > objectMeta.globalPosition.z - objectMeta.scale.z / 2 && localLoc.position.z < objectMeta.globalPosition.z + objectMeta.scale.z / 2)){
+		const float halfX = objectMeta.scale.x * 0.5f;
+		const float halfZ = objectMeta.scale.z * 0.5f;
+
+		// adjusted check such that it works when the plane is limited in size.
+		if (localLoc.position.x > -halfX && localLoc.position.x < halfX &&
+			localLoc.position.z > -halfZ && localLoc.position.z < halfZ) {
 
 			reactionForce = -(localLoc.position.y) * objectMeta.hapticSolidProperties.stiffness;
 			force.y = reactionForce;
 			if (force.y > objectMeta.hapticSolidProperties.solidForceLimit) force.y = objectMeta.hapticSolidProperties.solidForceLimit;
 			if (force.y < -objectMeta.hapticSolidProperties.solidForceLimit) force.y = -objectMeta.hapticSolidProperties.solidForceLimit;
-			//std::cout << localLoc.position.y << "\n";
+			/*std::cout << "x" << force.x << "\n";
+			std::cout << "y" << force.y << "\n";
+			std::cout << "z" << force.z << "\n";*/
+
 		}
 		
 		if (abs(reactionForce) > objectMeta.hapticSolidProperties.solidForceLimit *1.5) {

@@ -38,7 +38,7 @@ typedef struct {
 	Quaternion	orientation;
 	HapticSolidProperties	hapticSolidProperties;
 	char		name[100];
-
+	
 }FFUIObject_Meta;
 
 
