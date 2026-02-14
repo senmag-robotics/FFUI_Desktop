@@ -27,7 +27,6 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
 
     // Apply attraction only within radius
     if (distance < (attractionRadius) && distance > 0.5f) {
-        printf("%f", distance);
 
         Vector3 dir = toCenter / distance; // normalized
         float attractionMagnitude = objectMeta.hapticSolidProperties.stiffness * distance;
