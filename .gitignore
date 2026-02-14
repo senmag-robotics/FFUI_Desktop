@@ -4,3 +4,5 @@ Debug/
 Release/
 *.user
 *.aps
+/FFUIDesktop/x64
+*.obj

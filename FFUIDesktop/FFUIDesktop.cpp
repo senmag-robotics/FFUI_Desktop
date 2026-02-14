@@ -21,7 +21,7 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 	cursorPos = { 0,0 };
 
 	addBoundaryPlanes();
-	//addDemoObjects(); // optional starter objects
+	addDemoObjects(); // optional starter objects
 }
 
 
