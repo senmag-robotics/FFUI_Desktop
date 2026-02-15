@@ -43,8 +43,8 @@ public:
     bool initialize();
     void shutdown();
 
-    //std::vector<ScannedUIElement> scanDesktop();
-    //std::vector<ScannedUIElement> scanTaskbarIcons();
+    std::vector<ScannedUIElement> scanDesktop();
+    std::vector<ScannedUIElement> scanTaskbarIcons();
 
     //void scanWindow(HWND hwnd);
     //ScannedUIElement getElementAt(int x, int y);
@@ -58,9 +58,9 @@ private:
     UIElementType mapControlType(int controlTypeId);
 
 
-   /* void processElement(IUIAutomationElement* pElement,
+    void processElement(IUIAutomationElement* pElement,
         std::vector<ScannedUIElement>& results,
         bool recurse = true,
         UIElementType filterType = UIElementType::NoFilter
-    );*/
+    );
 };
