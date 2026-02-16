@@ -37,28 +37,28 @@ void FFUIDesktop::addBoundaryPlanes() {
 	// Bottom
 	meta.globalPosition = Vector3(0, -DEVICE_WORKSPACE_Y / 2, 0);
 	meta.orientation = Quaternion().setFromEuler(1, 0, 0);
-	sprintf_s(meta.name, "%s", "Workspace Lower Bounds");
+	meta.customeName = "Workspace Lower Bounds";
 	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Right
 	meta.globalPosition = Vector3(DEVICE_WORKSPACE_X / 2, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(90, 0, 0);
-	sprintf_s(meta.name, "%s", "Workspace Right Bounds");
+	meta.customeName = "Workspace Right Bounds";
 	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Top
 	meta.globalPosition = Vector3(0, DEVICE_WORKSPACE_Y / 2, 0);
 	meta.orientation = Quaternion().setFromEuler(180, 0, 0);
-	sprintf_s(meta.name, "%s", "Workspace Upper Bounds");
+	meta.customeName = "Workspace Upper Bounds";
 	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Left
 	meta.globalPosition = Vector3(-DEVICE_WORKSPACE_X / 2, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(270, 0, 0);
-	sprintf_s(meta.name, "%s", "Workspace Left Bounds");
+	meta.customeName = "Workspace Left Bounds";
 	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
 }
 
@@ -70,7 +70,7 @@ void FFUIDesktop::addDemoObjects() {
 	buttonMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
 	buttonMeta.hapticSolidProperties.stiffness = 0.0002f;
 	//buttonMeta.hapticSolidProperties.solidForceLimit = 0.01f;
-	sprintf_s(buttonMeta.name, "%s", "Center Button");
+	buttonMeta.customeName = "3D Center Button";
 	layers[0].objects.emplace_back(std::make_unique<ButtonObject>(buttonMeta));
 }
 

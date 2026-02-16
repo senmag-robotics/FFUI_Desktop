@@ -37,7 +37,7 @@ typedef struct {
 	Vector3		scale;
 	Quaternion	orientation;
 	HapticSolidProperties	hapticSolidProperties;
-	char		name[100];
+	std::string		customeName;
 	
 }FFUIObject_Meta;
 

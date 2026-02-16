@@ -45,6 +45,7 @@ void WindowScanner::shutdown() {
 
 //Puts pElement in results after building a ScanneUIElement object, then traverses this pElement 
 //if recurse is true;
+//Maybe the filtering should be at a later stage such as when creating the objects? Also easier then. 
 void WindowScanner::processElement(IUIAutomationElement* pElement,
     std::vector<ScannedUIElement>& results,
     bool recurse,
