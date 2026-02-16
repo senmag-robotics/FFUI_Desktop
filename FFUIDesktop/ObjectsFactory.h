@@ -1,19 +1,18 @@
 #pragma once
 #include "WindowScanner.h"
-#include "../HapticObjects/FFUIDesktop_object.h"
-#include "../ButtonObject.h"
+#include "ButtonObject.h"
 #include <memory>
 
 //This Creates FFUIObject subclasses automatically from scanned elements
 
 
 // Extended metadata for UI-linked objects
-struct FFUIObject_UIMeta : public FFUIObject_Meta {
-    UIElementType       uiType;
-    std::wstring        accessibleName;  // For TTS
-    HWND                linkedHwnd;
-    RECT                screenRect;
-};
+//struct FFUIObject_UIMeta : public FFUIObject_Meta {
+//    UIElementType       uiType;
+//    std::wstring        accessibleName;  // For TTS
+//    HWND                linkedHwnd;
+//    RECT                screenRect;
+//};
 
 class ObjectFactory {
 public:
@@ -25,7 +24,11 @@ public:
         float workspaceY);
 
     static std::vector<std::unique_ptr<FFUIObject>> createObjectsFromUIElements
-    (std::vector<ScannedUIElement>);
+    (std::vector<ScannedUIElement> scannedElements);
+
+    static FFUIObject_Meta createDemoObject();
+
+
 
 private:
     static HapticSolidProperties getHapticPropsOfType(UIElementType type);

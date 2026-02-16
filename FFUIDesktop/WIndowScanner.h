@@ -28,10 +28,13 @@ struct ScannedUIElement {
     std::wstring containerWindowName;
     RECT boundingRect;
     Vector2 center;
+    Vector2 size;           // x = Width, y = height
+
     int controlTypeId;  // UIA_ControlTypeId
     HWND hwnd;           // Window handle (if applicable)
     bool isEnabled;
     bool isFocusable;
+
 
 };
 
@@ -44,7 +47,7 @@ public:
     void shutdown();
 
     std::vector<ScannedUIElement> scanDesktop();
-    std::vector<ScannedUIElement> scanTaskbarIcons();
+    //std::vector<ScannedUIElement> scanTaskbarIcons();
 
     //void scanWindow(HWND hwnd);
     //ScannedUIElement getElementAt(int x, int y);

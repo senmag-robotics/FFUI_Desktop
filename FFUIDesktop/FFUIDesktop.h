@@ -54,8 +54,6 @@ public:
 
 private:
 	void addBoundaryPlanes();
-	void addDemoObjects(); // e.g., buttons/icons later
-
 	FFUIDesktop_Config	desktopConfig;
 
 	Vector2 cursorPos;

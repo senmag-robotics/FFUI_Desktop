@@ -11,28 +11,42 @@ ButtonObject::ButtonObject(FFUIObject_Meta meta) : FFUIObject(meta) {
 Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
     Vector3 force(0, 0, 0);
 
-    //We ignore the z axis for now.
+
+
+    //We adjust z axis.
     Vector3 adjustedLocalLoc(localLoc.position.x, localLoc.position.y, localLoc.position.z - 100);
     // Button center is at the local origin
     const Vector3 buttonCenter(0, 0, 0);
 
     Vector3 toCenter = buttonCenter - adjustedLocalLoc;
-    float distance = toCenter.length();
 
     // Guard against divide-by-zero / NaN
-    if (!std::isfinite(distance) || distance <= 0.0f) {
-
+    if (!std::isfinite(toCenter.x) || !std::isfinite(toCenter.y) || !std::isfinite(toCenter.z)) {
         return force;
     }
 
-    // Apply attraction only within radius
-    if (distance < (attractionRadius) && distance > 0.5f) {
+    float xAttractionRange = attractionRadius + objectMeta.scale.x;
+    float yAttractionRange = attractionRadius + objectMeta.scale.y;
+    float zAttractionRange = attractionRadius + objectMeta.scale.z;
 
-        Vector3 dir = toCenter / distance; // normalized
+    bool withinX = std::abs(adjustedLocalLoc.x) < xAttractionRange;
+    bool withinY = std::abs(adjustedLocalLoc.y) < yAttractionRange;
+    bool withinZ = std::abs(adjustedLocalLoc.z) < zAttractionRange; // works for small or large
+
+    if (withinX && withinY && withinZ) {
+        float distance = toCenter.length();
+        if (!std::isfinite(distance) || distance <= 2) {
+            return force;
+        }
+        Vector3 dir = toCenter / distance;
         float attractionMagnitude = objectMeta.hapticSolidProperties.stiffness * distance;
         force = dir * attractionMagnitude;
-     /*   force.x =  attractionMagnitude;
-        force.y = attractionMagnitude;*/
+        float maxForce = objectMeta.hapticSolidProperties.solidForceLimit;
+
+        if(force.x > maxForce){ force.x = maxForce;}
+        if (force.y > maxForce) { force.y = maxForce; }
+        if (force.z > maxForce) { force.z = maxForce; }
+
     }
 
     return force;

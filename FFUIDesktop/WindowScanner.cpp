@@ -71,7 +71,8 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
         elem.boundingRect = rect;
         elem.center.x = (float)(rect.left + rect.right) / 2.0f;
         elem.center.y = (float)(rect.top + rect.bottom) / 2.0f;
-
+        elem.size.x = (float)(rect.right - rect.left);
+        elem.size.y = (float)(rect.bottom - rect.top);
     }
 
     int controlType;

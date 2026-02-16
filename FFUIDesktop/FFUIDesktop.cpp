@@ -1,4 +1,6 @@
 #include "FFUIDesktop.h"
+#include "ObjectsFactory.h"
+#include "WindowScanner.h"
 
 // Helper function to send input cleanly
 void SendMouseInput(DWORD flags, DWORD data = 0) {
@@ -21,9 +23,18 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 	cursorPos = { 0,0 };
 
 	addBoundaryPlanes();
-	addDemoObjects(); // optional starter objects
-}
 
+	WindowScanner scanner;
+	if (scanner.initialize()) {
+		std::vector<ScannedUIElement> scannedElements = scanner.scanDesktop();
+		std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
+			ObjectFactory::createObjectsFromUIElements(scannedElements);
+
+		for (auto& obj : scannedObjects) {
+			layers[0].objects.emplace_back(std::move(obj));
+		}
+	}
+}
 
 void FFUIDesktop::addBoundaryPlanes() {
 	HapticSolidProperties props{};
@@ -37,42 +48,32 @@ void FFUIDesktop::addBoundaryPlanes() {
 	// Bottom
 	meta.globalPosition = Vector3(0, -DEVICE_WORKSPACE_Y / 2, 0);
 	meta.orientation = Quaternion().setFromEuler(1, 0, 0);
-	meta.customeName = "Workspace Lower Bounds";
+	meta.customName = "Workspace Lower Bounds";
 	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Right
 	meta.globalPosition = Vector3(DEVICE_WORKSPACE_X / 2, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(90, 0, 0);
-	meta.customeName = "Workspace Right Bounds";
+	meta.customName = "Workspace Right Bounds";
 	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Top
 	meta.globalPosition = Vector3(0, DEVICE_WORKSPACE_Y / 2, 0);
 	meta.orientation = Quaternion().setFromEuler(180, 0, 0);
-	meta.customeName = "Workspace Upper Bounds";
+	meta.customName = "Workspace Upper Bounds";
 	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Left
 	meta.globalPosition = Vector3(-DEVICE_WORKSPACE_X / 2, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(270, 0, 0);
-	meta.customeName = "Workspace Left Bounds";
+	meta.customName = "Workspace Left Bounds";
 	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
 }
 
-void FFUIDesktop::addDemoObjects() {
-	// Example: center button with no rotation
-	FFUIObject_Meta buttonMeta{};
-	buttonMeta.globalPosition = Vector3(0, 0, 50);
-	buttonMeta.scale = Vector3(20, 20, 20);
-	buttonMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
-	buttonMeta.hapticSolidProperties.stiffness = 0.0002f;
-	//buttonMeta.hapticSolidProperties.solidForceLimit = 0.01f;
-	buttonMeta.customeName = "3D Center Button";
-	layers[0].objects.emplace_back(std::make_unique<ButtonObject>(buttonMeta));
-}
+
 
 
 void FFUIDesktop::updateFrame() {

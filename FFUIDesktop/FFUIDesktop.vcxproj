@@ -137,9 +137,11 @@
     <ClCompile Include="HapticObjects\SolidPlane.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="FFUIDesktop.cpp" />
+    <ClCompile Include="ObjectsFactory.cpp" />
     <ClCompile Include="SenmagConnect\DeviceManager.cpp" />
     <ClCompile Include="SenmagConnect\SenmagConnect.cpp" />
     <ClCompile Include="SenmagConnect\SerialComms.cpp" />
+    <ClCompile Include="WindowScanner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ButtonObject.h" />
@@ -147,6 +149,8 @@
     <ClInclude Include="HapticObjects\FFUIDesktop_object.h" />
     <ClInclude Include="HapticObjects\HapticVibration.h" />
     <ClInclude Include="HapticObjects\SolidPlane.h" />
+    <ClInclude Include="ObjectsFactory.h" />
+    <ClInclude Include="WIndowScanner.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="FFUIDesktop.h" />
     <ClInclude Include="mathTypes.h" />
