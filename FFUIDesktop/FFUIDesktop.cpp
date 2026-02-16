@@ -28,12 +28,15 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 	if (scanner.initialize()) {
 		std::vector<ScannedUIElement> scannedElements = scanner.scanDesktop();
 		std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
-			ObjectFactory::createObjectsFromUIElements(scannedElements);
+			ObjectFactory::createObjectsFromUIElements(scannedElements, config);
 
 		for (auto& obj : scannedObjects) {
 			layers[0].objects.emplace_back(std::move(obj));
 		}
 	}
+
+	//FFUIObject_Meta demoButtonMeta = ObjectFactory::createDemoObject();
+//layers[0].objects.emplace_back(std::make_unique<ButtonObject>(demoButtonMeta));
 }
 
 void FFUIDesktop::addBoundaryPlanes() {
