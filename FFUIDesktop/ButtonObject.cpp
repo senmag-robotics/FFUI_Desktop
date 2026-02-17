@@ -53,7 +53,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
         }
 
         Vector3 dir = toCenter / distance;
-        float attractionMagnitude = objectMeta.hapticSolidProperties.stiffness * distance;
+        float attractionMagnitude = objectMeta.hapticSolidProperties.stiffness / distance * 2000;
 
         force = dir * attractionMagnitude;
         float maxForce = objectMeta.hapticSolidProperties.solidForceLimit;
