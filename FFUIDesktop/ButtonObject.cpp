@@ -40,7 +40,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
     float zAttractionRange = attractionRadius + halfZ; 
 
     //Attraction will not start unless cursor is within (actual boundary - boundaryMinimizationRange)
-    float boundaryMinimizationRange = 1;
+    float boundaryMinimizationRange = 0.5;
 
     bool withinX = std::abs(adjustedLocalLoc.x) < xAttractionRange - boundaryMinimizationRange;
     bool withinY = std::abs(adjustedLocalLoc.y) < yAttractionRange - boundaryMinimizationRange;
@@ -48,7 +48,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
 
     if (withinX && withinY && withinZ) {
         float distance = toCenter.length();
-        if (!std::isfinite(distance) || distance <= 1) {
+        if (!std::isfinite(distance) ) {
             return force;
         }
 
@@ -57,7 +57,6 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
 
         force = dir * attractionMagnitude;
         float maxForce = objectMeta.hapticSolidProperties.solidForceLimit;
-
       /*  if(force.x > maxForce){ force.x = maxForce;}
         if (force.y > maxForce) { force.y = maxForce; }
         if (force.z > maxForce) { force.z = maxForce; }*/
@@ -66,6 +65,8 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
         if (force.length() > maxForce) {
             force = dir * maxForce;
         }
+
+
     }
 
     return force;
