@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 #include "../mathTypes.h"
-#include <Windows.h> // Add this include at the top of the file to define RECT
+#include <Windows.h> 
 
 #pragma comment(lib, "oleaut32.lib")
 
@@ -46,7 +46,7 @@ public:
     bool initialize();
     void shutdown();
 
-    std::vector<ScannedUIElement> scanDesktop();
+    std::vector<ScannedUIElement> scanDesktop(std::vector<UIElementType> typesToScan);
     //std::vector<ScannedUIElement> scanTaskbarIcons();
 
     //void scanWindow(HWND hwnd);
@@ -63,7 +63,10 @@ private:
 
     void processElement(IUIAutomationElement* pElement,
         std::vector<ScannedUIElement>& results,
-        bool recurse = true,
-        UIElementType filterType = UIElementType::NoFilter
-    );
+        bool recurse = true);
+
+    void processElement(IUIAutomationElement* pElement,
+        std::vector<ScannedUIElement>& results,
+        bool recurse,
+        const std::vector<UIElementType>& typesToScan);
 };

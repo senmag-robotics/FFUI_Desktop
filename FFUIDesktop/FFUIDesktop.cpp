@@ -26,7 +26,9 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 	WindowScanner scanner;
 	if (scanner.initialize()) {
-		std::vector<ScannedUIElement> scannedElements = scanner.scanDesktop();
+
+		std::vector<UIElementType> typesToScan = {UIElementType::Button, UIElementType::ListItem};
+		std::vector<ScannedUIElement> scannedElements = scanner.scanDesktop(typesToScan);
 		std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
 			ObjectFactory::createObjectsFromUIElements(scannedElements, config);
 

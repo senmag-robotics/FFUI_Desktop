@@ -43,13 +43,23 @@ void WindowScanner::shutdown() {
     CoUninitialize();
 }
 
+//Checks if "typeToCheck" exists inside "types"
+static bool hasElement(const std::vector<UIElementType>& types, UIElementType typeToCheck) {
+    for (UIElementType type : types) {
+        if (type == typeToCheck)
+            return true;
+    }
+    return false;
+}
+
 //Puts pElement in results after building a ScanneUIElement object, then traverses this pElement 
 //if recurse is true;
 //Maybe the filtering should be at a later stage such as when creating the objects? Also easier then. 
 void WindowScanner::processElement(IUIAutomationElement* pElement,
     std::vector<ScannedUIElement>& results,
     bool recurse,
-    UIElementType filterType) {
+    const std::vector<UIElementType>& typesToScan) {
+
     if (!pElement) return;
 
     ScannedUIElement elem{};
@@ -92,10 +102,12 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
         elem.hwnd = (HWND)hwnd;
     }
 
-    if (filterType == UIElementType::NoFilter || elem.type == filterType)
+    if (typesToScan.empty() || hasElement(typesToScan, elem.type))
         results.push_back(elem);
 
-    // Recurse into children if needed
+    /*    filterType == UIElementType::NoFilter || elem.type == filterType)*/
+
+    // Recurse into children if needed, using DEPTH FIRST SEARCH
     if (recurse) {
         IUIAutomationTreeWalker* pWalker = nullptr;
         if (SUCCEEDED(pAutomation->get_ControlViewWalker(&pWalker))) {
@@ -103,7 +115,7 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
             pWalker->GetFirstChildElement(pElement, &pChild);
 
             while (pChild) {
-                processElement(pChild, results, true, UIElementType::Button);
+                processElement(pChild, results, true, typesToScan);
 
                 IUIAutomationElement* pNext = nullptr;
                 pWalker->GetNextSiblingElement(pChild, &pNext);
@@ -116,18 +128,26 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
 
 }
 
+void WindowScanner::processElement(IUIAutomationElement* pElement,
+    std::vector<ScannedUIElement>& results,
+    bool recurse) {
+    processElement(pElement, results, recurse, {});
+}
+
 //We get the root element in the desktop, then we traverse all of its children
-std::vector<ScannedUIElement> WindowScanner::scanDesktop() {
+std::vector<ScannedUIElement> WindowScanner::scanDesktop(std::vector<UIElementType> typesToScan) {
     std::vector<ScannedUIElement> results;
     if (!pAutomation) return results;
 
     IUIAutomationElement* pRoot = nullptr;
     if (SUCCEEDED(pAutomation->GetRootElement(&pRoot)) && pRoot) {
-        processElement(pRoot, results, true, UIElementType::NoFilter);
+        processElement(pRoot, results, true, typesToScan);
         pRoot->Release();
     }
     return results;
 }
+
+
 
 
 
