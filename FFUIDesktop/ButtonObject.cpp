@@ -25,28 +25,47 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
         return force;
     }
 
-    float xAttractionRange = attractionRadius + objectMeta.scale.x;
-    float yAttractionRange = attractionRadius + objectMeta.scale.y;
-    float zAttractionRange = attractionRadius + objectMeta.scale.z;
 
-    bool withinX = std::abs(adjustedLocalLoc.x) < xAttractionRange;
-    bool withinY = std::abs(adjustedLocalLoc.y) < yAttractionRange;
-    bool withinZ = std::abs(adjustedLocalLoc.z) < zAttractionRange; // works for small or large
+    float halfX = objectMeta.scale.x * 0.5f;
+    float halfY = objectMeta.scale.y * 0.5f;
+    float halfZ = objectMeta.scale.z * 0.5f;
+
+
+  /*  float xAttractionRange = attractionRadius + objectMeta.scale.x;
+    float yAttractionRange = attractionRadius + objectMeta.scale.y;
+    float zAttractionRange = attractionRadius + objectMeta.scale.z;*/
+
+    float xAttractionRange = attractionRadius + halfX;
+    float yAttractionRange = attractionRadius + halfY;
+    float zAttractionRange = attractionRadius + halfZ; 
+
+    //Attraction will not start unless cursor is within (actual boundary - boundaryMinimizationRange)
+    float boundaryMinimizationRange = 1;
+
+    bool withinX = std::abs(adjustedLocalLoc.x) < xAttractionRange - boundaryMinimizationRange;
+    bool withinY = std::abs(adjustedLocalLoc.y) < yAttractionRange - boundaryMinimizationRange;
+    bool withinZ = std::abs(adjustedLocalLoc.z) < zAttractionRange - boundaryMinimizationRange; // works for small or large
 
     if (withinX && withinY && withinZ) {
         float distance = toCenter.length();
-        if (!std::isfinite(distance) || distance <= 2) {
+        if (!std::isfinite(distance) || distance <= 1) {
             return force;
         }
+
         Vector3 dir = toCenter / distance;
         float attractionMagnitude = objectMeta.hapticSolidProperties.stiffness * distance;
+
         force = dir * attractionMagnitude;
         float maxForce = objectMeta.hapticSolidProperties.solidForceLimit;
 
-        if(force.x > maxForce){ force.x = maxForce;}
+      /*  if(force.x > maxForce){ force.x = maxForce;}
         if (force.y > maxForce) { force.y = maxForce; }
-        if (force.z > maxForce) { force.z = maxForce; }
+        if (force.z > maxForce) { force.z = maxForce; }*/
 
+
+        if (force.length() > maxForce) {
+            force = dir * maxForce;
+        }
     }
 
     return force;

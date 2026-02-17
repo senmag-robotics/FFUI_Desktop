@@ -8,6 +8,6 @@ public:
 private:
     Vector3 calculateInteractionForce(Location localLoc) override;
     
-    float attractionRadius = 50.0f;  // Distance at which attraction starts
+    float attractionRadius = 0.0f;  // Distance at which attraction starts
     float attractionStrength = 0.002f;  // Force magnitude
 };

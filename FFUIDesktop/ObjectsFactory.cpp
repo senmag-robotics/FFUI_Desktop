@@ -15,15 +15,18 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
 
     switch (type) {
     case UIElementType::Button:
-        //props.stiffness = 0.0001f;
-        //props.solidForceLimit = 0.0005;
-        props.stiffness = 0.00005f;
-        props.solidForceLimit = 0.0002;
+        props.stiffness = 0.0002f;
+        props.solidForceLimit = 0.002;
+    /*    props.stiffness = 0.00005f;
+        props.solidForceLimit = 0.0002;*/
         break;
 
     case UIElementType::ListItem:
-        props.stiffness = 0.00005f;
-        props.solidForceLimit = 0.0002;
+   /*     props.stiffness = 0.00005f;
+        props.solidForceLimit = 0.0002;*/
+
+        props.stiffness = 0.0001f;
+        props.solidForceLimit = 0.001;
         break;
     default: return props;
 
@@ -66,20 +69,28 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
         uIMeta.accessibleName = elem.name;
         uIMeta.uiType = elem.type;
         Vector2 elemScreenPosition;
-        uIMeta.scale = Vector3(3, 3, z);
+        //uIMeta.scale = Vector3(3, 3, z);
 
-        //uIMeta.scale = Vector3(
-        //    elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X,
-        //    elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y,
-        //   z);  // Z depth for haptic interaction
-
+      
         uIMeta.hapticSolidProperties = hapticPropsOfThisElemType;
 
+
+        //Vector2 newPos(elem.center.x - 0.5 * elem.size.x, elem.center.y + elem.size.y);
         uIMeta.globalPosition = screenToWorkspace(
-            elem.center,
+            elem.center ,
+            //newPos,
             config.screenSize,
             DEVICE_WORKSPACE_X,
             DEVICE_WORKSPACE_Y);
+
+          uIMeta.scale = Vector3(
+            elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X,
+            elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y,
+           z);  // Z depth for haptic interaction
+
+
+        uIMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
+
         //uIMeta.globalPosition = Vector3(elem.center.x, elem.center.y + 5, z);
 
         theCreatedUIObjects.emplace_back(std::make_unique<ButtonObject>(uIMeta));
