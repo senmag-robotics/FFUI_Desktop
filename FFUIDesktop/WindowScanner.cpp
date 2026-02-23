@@ -188,7 +188,12 @@ std::vector<ScannedUIElement> WindowScanner::scanTaskBar(std::vector<UIElementTy
 
     IUIAutomationElement* taskbarElement = nullptr;
     HRESULT hr = pAutomation->ElementFromHandle(taskbarHandle, &taskbarElement);
-    if (SUCCEEDED(hr) && taskbarElement) {
+    BOOL isTaskbarOffScreenBOOL;
+    taskbarElement->get_CurrentIsOffscreen(&isTaskbarOffScreenBOOL);
+    bool isTaskbarOffScreen = (isTaskbarOffScreenBOOL == TRUE);
+
+
+    if (SUCCEEDED(hr) && taskbarElement && !isTaskbarOffScreen) {
 
         processElement(taskbarElement, results, true, typesToScan);
 
