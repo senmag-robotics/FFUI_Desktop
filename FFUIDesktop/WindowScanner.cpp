@@ -21,6 +21,7 @@ UIElementType WindowScanner::mapControlType(int controlTypeId) {
     //case UIA_SliderControlTypeId:    return UIElementType::Slider;
     case UIA_PaneControlTypeId: return UIElementType::Window;
     case UIA_ScrollBarControlTypeId: return UIElementType::ScrollBar;
+    case UIA_HyperlinkControlTypeId: return UIElementType::Button;
     default:                         return UIElementType::Unknown;
     }
 }

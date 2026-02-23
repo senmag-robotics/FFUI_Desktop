@@ -15,7 +15,7 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
 
     switch (type) {
     case UIElementType::Button:
-        props.stiffness = 0.0008f;
+        props.stiffness = 0.0009f;
         props.solidForceLimit = 0.0015;
     /*    props.stiffness = 0.00005f;
         props.solidForceLimit = 0.0002;*/
@@ -25,9 +25,14 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
    /*     props.stiffness = 0.00005f;
         props.solidForceLimit = 0.0002;*/
 
-        props.stiffness = 0.0008f;
+        props.stiffness = 0.0007f;
         props.solidForceLimit = 0.0015;
         break;
+
+    case UIElementType::MenuItem:
+        props.stiffness = 0.0005f;
+        props.solidForceLimit = 0.0012;
+
     default: return props;
 
     }
