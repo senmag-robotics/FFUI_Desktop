@@ -1,6 +1,7 @@
 #include "FFUIDesktop.h"
 #include "ObjectsFactory.h"
 #include "WindowScanner.h"
+#include <thread>
 
 // Helper function to send input cleanly
 void SendMouseInput(DWORD flags, DWORD data = 0) {
@@ -22,26 +23,48 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 	cursorPos = { 0,0 };
 
-	addBoundaryPlanes();
-
-	WindowScanner scanner;
-	if (scanner.initialize()) {
-
-		std::vector<UIElementType> typesToScan = {UIElementType::Button, UIElementType::ListItem};
-		std::vector<ScannedUIElement> scannedElements = scanner.scanDesktop(typesToScan);
-		std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
-			ObjectFactory::createObjectsFromUIElements(scannedElements, config);
-
-		for (auto& obj : scannedObjects) {
-			layers[0].objects.emplace_back(std::move(obj));
-		}
-	}
-
-	//FFUIObject_Meta demoButtonMeta = ObjectFactory::createDemoObject();
-//layers[0].objects.emplace_back(std::make_unique<ButtonObject>(demoButtonMeta));
+	// Use a lambda to capture 'this' and 'config', and accept the 'st' (stop_token) from jthread
+	scannerThread = std::jthread([this, config](std::stop_token st) {
+		initiatePeriodicScanner(st, config);
+	});
 }
 
-void FFUIDesktop::addBoundaryPlanes() {
+//We create an updated list of objects by scanning then we lock the mutex only for hte moment of switching 
+//the old list with the new list. 
+ void FFUIDesktop::initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config) {
+	while (!stoken.stop_requested()) {
+
+		std::vector<std::unique_ptr<FFUIObject>> newObjects;
+		
+		addBoundaryPlanes(newObjects);
+
+		WindowScanner scanner;
+		if (scanner.initialize()) {
+			std::vector<UIElementType> typesToScan = { UIElementType::Button, UIElementType::ListItem };
+			std::vector<ScannedUIElement> scannedElements = scanner.scanDesktop(typesToScan);
+			std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
+				ObjectFactory::createObjectsFromUIElements(scannedElements, config);
+
+			for (auto& obj : scannedObjects) {
+				newObjects.emplace_back(std::move(obj));
+			}
+		}
+
+	
+		
+		std::lock_guard<std::mutex> lock(objectsListMutex);
+		if (!layers.empty()) {
+			std::swap(layers[0].objects, newObjects);
+		}
+		
+	
+		// Prevent CPU hogging
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+}
+
+// Update this function to take the vector as an argument
+void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList) {
 	HapticSolidProperties props{};
 	props.stiffness = 0.001f;
 	props.solidForceLimit = 0.005f;
@@ -54,28 +77,28 @@ void FFUIDesktop::addBoundaryPlanes() {
 	meta.globalPosition = Vector3(0, -DEVICE_WORKSPACE_Y / 2, 0);
 	meta.orientation = Quaternion().setFromEuler(1, 0, 0);
 	meta.customName = "Workspace Lower Bounds";
-	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Right
 	meta.globalPosition = Vector3(DEVICE_WORKSPACE_X / 2, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(90, 0, 0);
 	meta.customName = "Workspace Right Bounds";
-	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Top
 	meta.globalPosition = Vector3(0, DEVICE_WORKSPACE_Y / 2, 0);
 	meta.orientation = Quaternion().setFromEuler(180, 0, 0);
 	meta.customName = "Workspace Upper Bounds";
-	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Left
 	meta.globalPosition = Vector3(-DEVICE_WORKSPACE_X / 2, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(270, 0, 0);
 	meta.customName = "Workspace Left Bounds";
-	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 }
 
 
@@ -218,8 +241,11 @@ void FFUIDesktop::updateFrame() {
 
 
 Vector3 FFUIDesktop::processForces(Location stylusLocation) {
+
 	Vector3 interactionForce = Vector3(0, 0, 0);
 	for (int x = 0; x < layers.size(); x++) {
+		std::lock_guard<std::mutex> lock(objectsListMutex);
+
 		for (int y = 0; y < layers[x].objects.size(); y++) {
 			interactionForce += layers[x].objects[y]->updateForces(stylusLocation);
 		}

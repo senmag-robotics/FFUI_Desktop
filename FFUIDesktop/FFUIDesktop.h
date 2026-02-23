@@ -4,6 +4,7 @@
 #include "mathTypes.h"
 #include <windows.h>
 #include "SenmagConnect.h"
+#include <thread> // Ensure this is included
 
 #include "DeviceManager.h"
 
@@ -46,14 +47,21 @@ public:
 	void		moveWindowsCursor(Vector2 targetPos);
 	Vector3		processForces(Location stylusLocation);
 
+	void initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config);
+
+
+
+	std::jthread scannerThread; 
 
 	std::vector<FFUIDesktop_Layer> layers;
 	DeviceManager deviceManager;
 
+	std::mutex objectsListMutex;
+
 	std::vector<std::unique_ptr<FFUIObject>> objects;
 
 private:
-	void addBoundaryPlanes();
+	void addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList);
 	FFUIDesktop_Config	desktopConfig;
 
 	Vector2 cursorPos;
