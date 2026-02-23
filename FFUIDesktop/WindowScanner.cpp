@@ -170,6 +170,33 @@ std::vector<ScannedUIElement> WindowScanner::scanFocusedWindow(std::vector<UIEle
     
 }
 
+std::vector<ScannedUIElement> WindowScanner::scanTaskBar(std::vector<UIElementType> typesToScan) {
+
+    std::vector<ScannedUIElement> results;
+    if (!pAutomation) return results;
+
+    // Look for the window with the exact class name "Shell_TrayWnd"
+    HWND taskbarHandle = FindWindow(L"Shell_TrayWnd", NULL);
+
+    if (taskbarHandle == NULL) {
+        printf("Could not find the taskbar.\n");
+        return results;
+    }
+
+    
+  
+
+    IUIAutomationElement* taskbarElement = nullptr;
+    HRESULT hr = pAutomation->ElementFromHandle(taskbarHandle, &taskbarElement);
+    if (SUCCEEDED(hr) && taskbarElement) {
+
+        processElement(taskbarElement, results, true, typesToScan);
+
+        taskbarElement->Release();
+    }
+
+    return results;
+}
 
 
 

@@ -50,6 +50,8 @@ public:
 
     std::vector<ScannedUIElement> scanFocusedWindow(std::vector<UIElementType> typesToScan);
 
+    std::vector<ScannedUIElement> scanTaskBar(std::vector<UIElementType> typesToScan);
+
     //std::vector<ScannedUIElement> scanTaskbarIcons();
 
     //void scanWindow(HWND hwnd);

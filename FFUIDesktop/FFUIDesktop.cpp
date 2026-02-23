@@ -41,9 +41,29 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 		WindowScanner scanner;
 		if (scanner.initialize()) {
 			std::vector<UIElementType> typesToScan = { UIElementType::Button, UIElementType::ListItem, UIElementType::MenuItem };
-			std::vector<ScannedUIElement> scannedElements = scanner.scanFocusedWindow(typesToScan);
+			std::vector<ScannedUIElement> allscannedElements;
+
+			
+			std::vector<ScannedUIElement> focusedWindowElements = scanner.scanFocusedWindow(typesToScan);
+			std::vector<ScannedUIElement> taskbarElements = scanner.scanTaskBar(typesToScan);
+
+
+			//Combiniing the scanned elements
+			allscannedElements
+				.reserve(focusedWindowElements.size() + taskbarElements.size());
+			allscannedElements.insert(allscannedElements.end(),
+				focusedWindowElements.begin(),
+				focusedWindowElements.end());
+
+			allscannedElements.insert(allscannedElements.end(),
+				taskbarElements.begin(),
+				taskbarElements.end());
+
+
+
+
 			std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
-				ObjectFactory::createObjectsFromUIElements(scannedElements, config);
+				ObjectFactory::createObjectsFromUIElements(allscannedElements, config);
 
 			for (auto& obj : scannedObjects) {
 				newObjects.emplace_back(std::move(obj));
