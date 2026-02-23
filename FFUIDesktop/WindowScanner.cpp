@@ -19,6 +19,7 @@ UIElementType WindowScanner::mapControlType(int controlTypeId) {
     //case UIA_CheckBoxControlTypeId:  return UIElementType::Checkbox;
     //case UIA_RadioButtonControlTypeId: return UIElementType::RadioButton;
     //case UIA_SliderControlTypeId:    return UIElementType::Slider;
+    case UIA_PaneControlTypeId: return UIElementType::Window;
     case UIA_ScrollBarControlTypeId: return UIElementType::ScrollBar;
     default:                         return UIElementType::Unknown;
     }
@@ -146,6 +147,29 @@ std::vector<ScannedUIElement> WindowScanner::scanDesktop(std::vector<UIElementTy
     }
     return results;
 }
+
+std::vector<ScannedUIElement> WindowScanner::scanFocusedWindow(std::vector<UIElementType> typesToScan) {
+
+    std::vector<ScannedUIElement> results;
+    if (!pAutomation) return results;
+
+    HWND focusedWindowHandle = GetForegroundWindow();
+    if (!focusedWindowHandle) return results;
+
+    IUIAutomationElement* windowElement = nullptr;
+    HRESULT hr = pAutomation->ElementFromHandle(focusedWindowHandle, &windowElement);
+    if (SUCCEEDED(hr) && windowElement) {
+    
+        processElement(windowElement, results, true, typesToScan);
+
+        windowElement->Release();
+    }
+
+    return results;
+    
+}
+
+
 
 
 

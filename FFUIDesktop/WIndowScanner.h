@@ -47,6 +47,9 @@ public:
     void shutdown();
 
     std::vector<ScannedUIElement> scanDesktop(std::vector<UIElementType> typesToScan);
+
+    std::vector<ScannedUIElement> scanFocusedWindow(std::vector<UIElementType> typesToScan);
+
     //std::vector<ScannedUIElement> scanTaskbarIcons();
 
     //void scanWindow(HWND hwnd);
