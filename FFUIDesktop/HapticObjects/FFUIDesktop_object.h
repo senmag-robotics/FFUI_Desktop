@@ -55,7 +55,8 @@ public:
 	}
 
 	virtual Vector3	calculateInteractionForce(Location localLoc);
-	static Vector3 calculateSnapForceToThis(Location stylusLocation);
+
+	Vector3 calculateSnappingForceToThis(Location stylusLocation);
 
 	
 

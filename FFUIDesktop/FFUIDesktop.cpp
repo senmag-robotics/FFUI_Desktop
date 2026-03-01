@@ -252,14 +252,9 @@ void FFUIDesktop::updateFrame() {
 				if ((currentInput >> 7 & 0x1) == 1 && (stylusState_previous >> 7 & 0x1) == 0) {
 			
 
-					SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
+					//SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
 				}
-				//Pressed
-				if ((currentInput >> 7 & 0x1) == 0 && (stylusState_previous >> 7 & 0x1) == 1) {
-		
-					SendMouseInput(MOUSEEVENTF_XDOWN, XBUTTON1);
-
-				}
+			
 
 				stylusState_previous = currentInput;
 
@@ -277,11 +272,15 @@ void FFUIDesktop::updateFrame() {
 				deviceLoc.orientation.k = deviceManager.devices[x].deviceStatus.orientation[3];
 				Vector3 force = processForces(deviceLoc); //Interactive forces according to object type
 
-				//Sudden forces:
+				//While side button is held down push towards closest object
 				if ((currentInput >> 7 & 0x1) == 0) {
+
+					//SendMouseInput(MOUSEEVENTF_XDOWN, XBUTTON1);
+
+				
 					auto* closestObject = findCloestObjectToCursor();
 					if (closestObject != nullptr)
-				    force += closestObject->calculateSnapForceToThis(deviceLoc);
+				    force = closestObject->calculateSnappingForceToThis(deviceLoc);
 				}
 				
 

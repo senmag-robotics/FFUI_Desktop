@@ -36,9 +36,18 @@ Vector3 FFUIObject::calculateInteractionForce(Location localPos) {
 	return Vector3(0, 0, 0);
 }
 
-Vector3 FFUIObject::calculateSnapForceToThis(Location stylusLocation)
+Vector3 FFUIObject::calculateSnappingForceToThis(Location stylusLocation)
 {
+	Vector3 snappingForce = Vector3(0, 0, 0);
+	Vector3 direction = objectMeta.globalPosition - stylusLocation.position;
 
-	return Vector3();
+	snappingForce = direction * objectMeta.hapticSolidProperties.stiffness;
+
+	snappingForce.z = 0;
+	float maxSnappingForce = objectMeta.hapticSolidProperties.solidForceLimit * 2;
+	if (snappingForce.length() > maxSnappingForce) {
+		snappingForce = snappingForce.normalized() * maxSnappingForce;
+	}
+	return snappingForce;
 }
 
