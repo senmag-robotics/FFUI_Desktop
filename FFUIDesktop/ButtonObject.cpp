@@ -59,13 +59,21 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
 
       //  //force = dir * attractionMagnitude;
         float maxForce = objectMeta.hapticSolidProperties.solidForceLimit;
-      ///*  if(force.x > maxForce){ force.x = maxForce;}
-      //  if (force.y > maxForce) { force.y = maxForce; }
-      //  if (force.z > maxForce) { force.z = maxForce; }*/
 
-        force.x /= objectMeta.scale.x;
-        force.y /= objectMeta.scale.y;
+        Vector3 dir = toCenter / distance;
 
+    
+        float minDimension = std::min(objectMeta.scale.x, objectMeta.scale.y);
+
+       
+     
+        float stabilityFactor = std::max(minDimension, 10.0f);
+
+        // Calculate Effective Stiffness
+        // We ensure we don't exceed the stiffness of a 'stabilityFactor' sized button
+        float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 10) / stabilityFactor;
+
+        force = dir * (effectiveStiffness * distance);
         force.z = 0;
 
         if (force.length() > maxForce) {
