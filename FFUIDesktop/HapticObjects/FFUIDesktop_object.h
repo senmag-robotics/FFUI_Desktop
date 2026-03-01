@@ -50,9 +50,12 @@ public:
 
 	Vector3			updateForces(Location cursorLocation);
 	
-
+	const FFUIObject_Meta& getMeta() const {
+		return objectMeta;
+	}
 
 	virtual Vector3	calculateInteractionForce(Location localLoc);
+	static Vector3 calculateSnapForceToThis(Location stylusLocation);
 
 	
 

@@ -23,10 +23,12 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 	cursorPos = { 0,0 };
 
-	// Use a lambda to capture 'this' and 'config', and accept the 'st' (stop_token) from jthread
+	// a lambda to capture 'this' and 'config', and accept the 'st' (stop_token) from jthread
 	scannerThread = std::jthread([this, config](std::stop_token st) {
 		initiatePeriodicScanner(st, config);
 	});
+
+
 }
 
 //We create an updated list of objects by scanning then we lock the mutex only for hte moment of switching 
@@ -96,31 +98,56 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 	// Bottom
 	meta.globalPosition = Vector3(0, -DEVICE_WORKSPACE_Y / 2, 0);
 	meta.orientation = Quaternion().setFromEuler(1, 0, 0);
-	meta.customName = "Workspace Lower Bounds";
+	meta.customName = "Workspace Lower Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Right
 	meta.globalPosition = Vector3(DEVICE_WORKSPACE_X / 2, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(90, 0, 0);
-	meta.customName = "Workspace Right Bounds";
+	meta.customName = "Workspace Right Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Top
 	meta.globalPosition = Vector3(0, DEVICE_WORKSPACE_Y / 2, 0);
 	meta.orientation = Quaternion().setFromEuler(180, 0, 0);
-	meta.customName = "Workspace Upper Bounds";
+	meta.customName = "Workspace Upper Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Left
 	meta.globalPosition = Vector3(-DEVICE_WORKSPACE_X / 2, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(270, 0, 0);
-	meta.customName = "Workspace Left Bounds";
+	meta.customName = "Workspace Left Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 }
+//Returns a pointer to the closest object (that is not a boundary) to the cursor 
 
+FFUIObject* FFUIDesktop::findCloestObjectToCursor() {
+	if (layers.empty() || layers[0].objects.empty()) return nullptr;
+
+	FFUIObject* closestObject = layers[0].objects[0].get();
+	float minDistance = (layers[0].objects[0]->getMeta().globalPosition - 
+	                     Vector3(cursorPos.x, cursorPos.y, 0)).length();
+	
+	for (const auto& object : layers[0].objects) {
+		//We skip if this object is a boundary (has "Boundary" in its name)
+		if (std::string(object->getMeta().customName).find("Boundary") != std::string::npos)
+			continue;
+
+		Vector3 objectPos = object->getMeta().globalPosition;
+		Vector3 cursorPos3D(cursorPos.x, cursorPos.y, 0);
+		float distanceToThisObject = (objectPos - cursorPos3D).length();
+		
+		if (distanceToThisObject < minDistance) {
+			minDistance = distanceToThisObject;
+			closestObject = object.get();
+		}
+	}
+
+	return closestObject;
+}
 
 
 
@@ -223,10 +250,13 @@ void FFUIDesktop::updateFrame() {
 				//side button
 				//Released
 				if ((currentInput >> 7 & 0x1) == 1 && (stylusState_previous >> 7 & 0x1) == 0) {
+			
+
 					SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
 				}
 				//Pressed
 				if ((currentInput >> 7 & 0x1) == 0 && (stylusState_previous >> 7 & 0x1) == 1) {
+		
 					SendMouseInput(MOUSEEVENTF_XDOWN, XBUTTON1);
 
 				}
@@ -245,8 +275,14 @@ void FFUIDesktop::updateFrame() {
 				deviceLoc.orientation.i = deviceManager.devices[x].deviceStatus.orientation[1];
 				deviceLoc.orientation.j = deviceManager.devices[x].deviceStatus.orientation[2];
 				deviceLoc.orientation.k = deviceManager.devices[x].deviceStatus.orientation[3];
-				Vector3 force = processForces(deviceLoc);
+				Vector3 force = processForces(deviceLoc); //Interactive forces according to object type
 
+				//Sudden forces:
+				if ((currentInput >> 7 & 0x1) == 0) {
+					auto* closestObject = findCloestObjectToCursor();
+					if (closestObject != nullptr)
+				    force += closestObject->calculateSnapForceToThis(deviceLoc);
+				}
 				
 
 				LibreOne_targets forceTargets;

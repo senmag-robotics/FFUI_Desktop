@@ -50,7 +50,6 @@ public:
 	void initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config);
 
 
-
 	std::jthread scannerThread; 
 
 	std::vector<FFUIDesktop_Layer> layers;
@@ -65,7 +64,7 @@ private:
 	FFUIDesktop_Config	desktopConfig;
 
 	Vector2 cursorPos;
-
+	FFUIObject* findCloestObjectToCursor();
 
 	Vector2 cusrsorScale;		//the scale factor between device workspace and digital workspace
 };
