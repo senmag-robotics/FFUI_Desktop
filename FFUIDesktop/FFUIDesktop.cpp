@@ -303,6 +303,7 @@ Vector3 FFUIDesktop::processForces(Location stylusLocation) {
 
 		for (int y = 0; y < layers[x].objects.size(); y++) {
 			interactionForce += layers[x].objects[y]->updateForces(stylusLocation);
+			//if (interactionForce.length() > 0.002) interactionForce = 0.002;
 		}
 	}
 	return interactionForce;

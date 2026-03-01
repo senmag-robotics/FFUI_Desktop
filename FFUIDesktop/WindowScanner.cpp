@@ -13,6 +13,8 @@ UIElementType WindowScanner::mapControlType(int controlTypeId) {
     case UIA_WindowControlTypeId:    return UIElementType::Window;
     case UIA_MenuItemControlTypeId:  return UIElementType::MenuItem;
     case UIA_ListItemControlTypeId:  return UIElementType::ListItem;
+    case UIA_TabItemControlTypeId:  return UIElementType::ListItem;
+
     //case UIA_TabItemControlTypeId:   return UIElementType::Tab;
     //case UIA_HyperlinkControlTypeId: return UIElementType::Hyperlink;
     case UIA_EditControlTypeId:      return UIElementType::TextField;
@@ -51,6 +53,55 @@ static bool hasElement(const std::vector<UIElementType>& types, UIElementType ty
         if (type == typeToCheck)
             return true;
     }
+    return false;
+}
+//We check if the element is a broswer element (and hence could have a rectangular box but still hidden)
+//If it is we check the clickablePoint property.
+bool IsElementClickable(IUIAutomationElement* pElement) {
+    // Find out what rendered this element (we check if it's a browser)
+    BSTR bstrFrameworkId = nullptr;
+    bool isWebFramework = false;
+
+    if (SUCCEEDED(pElement->get_CurrentFrameworkId(&bstrFrameworkId)) && bstrFrameworkId != nullptr) {
+        std::wstring fw(bstrFrameworkId);
+
+        // Check for common browser frameworks
+        if (fw == L"Chrome" || fw == L"Mozilla" || fw == L"InternetExplorer") {
+            isWebFramework = true;
+        }
+        SysFreeString(bstrFrameworkId);
+    }
+
+    if (!isWebFramework) return true;
+
+    bool isClickable = false;
+
+    POINT pt;
+    BOOL gotClickable = FALSE;
+
+    HRESULT hr = pElement->GetClickablePoint(&pt, &gotClickable);
+
+    if (SUCCEEDED(hr) && gotClickable == TRUE) {
+
+
+
+        return true;
+    }
+
+    // Small buttons often don't have a clickable point even though they are clickable
+    // (Browsers don't create clikcalbe point for them to save memory)
+    RECT rect;
+    if (SUCCEEDED(pElement->get_CurrentBoundingRectangle(&rect))) {
+        long width = rect.right - rect.left;
+        long height = rect.bottom - rect.top;
+
+        if (width > 0 && height > 10 && height < 80) {
+            return true; 
+        }
+    }
+
+    //If it is a webframework and the button does not have the clickable point property, then
+    //It is not a clickable
     return false;
 }
 
@@ -99,14 +150,20 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
         elem.isEnabled = (enabled == TRUE); //To convert from BOOL (Integer) to bool
     }
 
+   
+
     UIA_HWND hwnd;
     if (SUCCEEDED(pElement->get_CurrentNativeWindowHandle(&hwnd))) {
         elem.hwnd = (HWND)hwnd;
     }
+    bool typeMatch = typesToScan.empty() || hasElement(typesToScan, elem.type);
 
-    if (typesToScan.empty() || hasElement(typesToScan, elem.type))
-        results.push_back(elem);
-
+    if (typeMatch) { 
+      
+        if (IsElementClickable(pElement)) {
+            results.push_back(elem);
+        }
+    }
     /*    filterType == UIElementType::NoFilter || elem.type == filterType)*/
 
     // Recurse into children if needed, using DEPTH FIRST SEARCH
