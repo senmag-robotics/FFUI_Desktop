@@ -25,7 +25,7 @@ public:
         float workspaceY);
 
     static std::vector<std::unique_ptr<FFUIObject>> createObjectsFromUIElements(
-        std::vector<ScannedUIElement> scannedElements,
+        std::vector<ScannedUIElement>& scannedElements,
         FFUIDesktop_Config config
     );
 

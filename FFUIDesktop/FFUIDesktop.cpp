@@ -85,7 +85,6 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 	}
 }
 
-// Update this function to take the vector as an argument
 void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList) {
 	HapticSolidProperties props{};
 	props.stiffness = 0.001f;
@@ -94,6 +93,18 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 	FFUIObject_Meta meta{};
 	meta.scale = Vector3(2000, 0, 2000);
 	meta.hapticSolidProperties = props;
+
+	// Front
+	meta.globalPosition = Vector3(0, 0, 130);
+	meta.orientation = Quaternion().setFromEuler(0, 0, 90);
+	meta.customName = "Workspace Front Boundary";
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
+
+	//// Back
+	//meta.globalPosition = Vector3(0, 0, 240);
+	//meta.orientation = Quaternion().setFromEuler(0, 0, -90);
+	//meta.customName = "Workspace Front Boundary";
+	//targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 	// Bottom
 	meta.globalPosition = Vector3(0, (-DEVICE_WORKSPACE_Y) / 2 + DEVICE_WORKSPACE_OFFSETY, 0);

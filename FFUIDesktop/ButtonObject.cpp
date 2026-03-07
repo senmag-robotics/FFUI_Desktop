@@ -65,7 +65,6 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
     
         float minDimension = std::min(objectMeta.scale.x, objectMeta.scale.y);
 
-       
      
         float stabilityFactor = std::max(minDimension, 15.0f);
 
