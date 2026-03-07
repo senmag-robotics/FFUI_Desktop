@@ -134,7 +134,7 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 	meta.customName = "Workspace Left Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 }
-//Returns a pointer to the closest object (that is not a boundary) to the cursor 
+//calculates the force to the closest object (that is not a boundary) to the cursor 
 
 Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc) {
 	Vector3 snappingForce(0, 0, 0);
@@ -295,7 +295,7 @@ void FFUIDesktop::updateFrame() {
 				if ((currentInput >> 7 & 0x1) == 0) {
 
 			
-					force = findCloestObjectToCursor(deviceLoc);
+					force = calculateForceToClosestObject(deviceLoc);
 				}
 				
 
