@@ -64,7 +64,7 @@ private:
 	FFUIDesktop_Config	desktopConfig;
 
 	Vector2 cursorPos;
-	FFUIObject* findCloestObjectToCursor();
+	Vector3 calculateForceToClosestObject(Location deviceLoc);
 
 	Vector2 cusrsorScale;		//the scale factor between device workspace and digital workspace
 };

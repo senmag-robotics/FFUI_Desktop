@@ -74,7 +74,8 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 	
 		
-		std::lock_guard<std::mutex> lock(objectsListMutex);
+		std::lock_guard<std::mutex> lock(
+			objectsListMutex);
 		if (!layers.empty()) {
 			std::swap(layers[0].objects, newObjects);
 		}
@@ -135,8 +136,12 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 }
 //Returns a pointer to the closest object (that is not a boundary) to the cursor 
 
-FFUIObject* FFUIDesktop::findCloestObjectToCursor() {
-	if (layers.empty() || layers[0].objects.empty()) return nullptr;
+Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc) {
+	Vector3 snappingForce(0, 0, 0);
+	if (layers.empty() || layers[0].objects.empty()) return snappingForce;
+
+
+	std::lock_guard<std::mutex> lock(objectsListMutex);
 
 	FFUIObject* closestObject = layers[0].objects[0].get();
 	float minDistance = (layers[0].objects[0]->getMeta().globalPosition - 
@@ -156,8 +161,11 @@ FFUIObject* FFUIDesktop::findCloestObjectToCursor() {
 			closestObject = object.get();
 		}
 	}
+	if (closestObject != nullptr) {
+		snappingForce = closestObject->calculateSnappingForceToThis(deviceLoc);
+	}
 
-	return closestObject;
+	return snappingForce;
 }
 
 
@@ -286,12 +294,8 @@ void FFUIDesktop::updateFrame() {
 				//While side button is held down push towards closest object
 				if ((currentInput >> 7 & 0x1) == 0) {
 
-					//SendMouseInput(MOUSEEVENTF_XDOWN, XBUTTON1);
-
-				
-					auto* closestObject = findCloestObjectToCursor();
-					if (closestObject != nullptr)
-				    force = closestObject->calculateSnappingForceToThis(deviceLoc);
+			
+					force = findCloestObjectToCursor(deviceLoc);
 				}
 				
 
