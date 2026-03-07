@@ -3,7 +3,7 @@
 #include "ButtonObject.h"
 #include <memory>
 #include "FFUIDesktop.h"
-
+#include <cmath>
 //This Creates FFUIObject subclasses automatically from scanned elements
 
 

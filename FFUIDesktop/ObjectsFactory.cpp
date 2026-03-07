@@ -64,8 +64,10 @@ FFUIObject_Meta ObjectFactory::createDemoObject() {
 
 bool dublicatePositionsExist(std::vector<std::unique_ptr<FFUIObject>>& alreadyCreatedObjects, FFUIObject_UIMeta& objectMeta) {
     for (const auto& object : alreadyCreatedObjects) {
-        float range = 3;
-        if ((objectMeta.globalPosition - object->getMeta().globalPosition).length() < range)
+        float diognalOfWorkspace = std::sqrt(DEVICE_WORKSPACE_X * DEVICE_WORKSPACE_X
+            + DEVICE_WORKSPACE_Y * DEVICE_WORKSPACE_Y);
+        float overlapingThreshold = diognalOfWorkspace * 0.00768;
+        if ((objectMeta.globalPosition - object->getMeta().globalPosition).length() < overlapingThreshold)
             return true;
     }
     return false;
