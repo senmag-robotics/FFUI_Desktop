@@ -67,11 +67,11 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
 
        
      
-        float stabilityFactor = std::max(minDimension, 10.0f);
+        float stabilityFactor = std::max(minDimension, 15.0f);
 
         // Calculate Effective Stiffness
         // We ensure we don't exceed the stiffness of a 'stabilityFactor' sized button
-        float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 10) / stabilityFactor;
+        float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 13) / stabilityFactor;
 
         force = dir * (effectiveStiffness * distance);
         force.z = 0;

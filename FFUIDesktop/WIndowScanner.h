@@ -48,7 +48,7 @@ public:
 
     std::vector<ScannedUIElement> scanDesktop(std::vector<UIElementType> typesToScan);
 
-    std::vector<ScannedUIElement> scanFocusedWindow(std::vector<UIElementType> typesToScan);
+    std::vector<ScannedUIElement> scanFocusedWindow(const std::vector<UIElementType>& typesToScan);
 
     std::vector<ScannedUIElement> scanTaskBar(std::vector<UIElementType> typesToScan);
 

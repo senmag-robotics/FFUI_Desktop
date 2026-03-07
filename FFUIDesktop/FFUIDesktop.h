@@ -11,8 +11,8 @@
 #include "HapticVibration.h"
 #include "SolidPlane.h"
 #include "ButtonObject.h"
-#define DEVICE_WORKSPACE_X	200
-#define DEVICE_WORKSPACE_Y	100
+#define DEVICE_WORKSPACE_X	300
+#define DEVICE_WORKSPACE_Y	250
 
 
 #define DEVICE_WORKSPACE_OFFSETX	0

@@ -96,28 +96,28 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 	meta.hapticSolidProperties = props;
 
 	// Bottom
-	meta.globalPosition = Vector3(0, -DEVICE_WORKSPACE_Y / 2, 0);
+	meta.globalPosition = Vector3(0, (-DEVICE_WORKSPACE_Y) / 2 + DEVICE_WORKSPACE_OFFSETY, 0);
 	meta.orientation = Quaternion().setFromEuler(1, 0, 0);
 	meta.customName = "Workspace Lower Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Right
-	meta.globalPosition = Vector3(DEVICE_WORKSPACE_X / 2, 0, 0);
+	meta.globalPosition = Vector3(DEVICE_WORKSPACE_X / 2 + DEVICE_WORKSPACE_OFFSETX, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(90, 0, 0);
 	meta.customName = "Workspace Right Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Top
-	meta.globalPosition = Vector3(0, DEVICE_WORKSPACE_Y / 2, 0);
+	meta.globalPosition = Vector3(0, DEVICE_WORKSPACE_Y / 2 + DEVICE_WORKSPACE_OFFSETY, 0);
 	meta.orientation = Quaternion().setFromEuler(180, 0, 0);
 	meta.customName = "Workspace Upper Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Left
-	meta.globalPosition = Vector3(-DEVICE_WORKSPACE_X / 2, 0, 0);
+	meta.globalPosition = Vector3(-DEVICE_WORKSPACE_X / 2 + DEVICE_WORKSPACE_OFFSETX, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(270, 0, 0);
 	meta.customName = "Workspace Left Boundary";
 	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
@@ -296,17 +296,40 @@ void FFUIDesktop::updateFrame() {
 
 
 Vector3 FFUIDesktop::processForces(Location stylusLocation) {
+    Vector3 uiForce(0, 0, 0);
+    Vector3 boundaryForce(0, 0, 0);
+    
 
-	Vector3 interactionForce = Vector3(0, 0, 0);
-	for (int x = 0; x < layers.size(); x++) {
-		std::lock_guard<std::mutex> lock(objectsListMutex);
+    float globalUiForceLimit = 0.015f;
 
-		for (int y = 0; y < layers[x].objects.size(); y++) {
-			interactionForce += layers[x].objects[y]->updateForces(stylusLocation);
-			//if (interactionForce.length() > 0.002) interactionForce = 0.002;
-		}
-	}
-	return interactionForce;
+    for (int x = 0; x < layers.size(); x++) {
+        for (int y = 0; y < layers[x].objects.size(); y++) {
+			std::lock_guard<std::mutex> lock(objectsListMutex);
+
+            // Calculate individual object force
+            Vector3 f = layers[x].objects[y]->updateForces(stylusLocation);
+
+            // Check if this is a boundary plane
+       
+            std::string name = layers[x].objects[y]->getMeta().customName;
+            
+            if (name.find("Boundary") != std::string::npos) {
+     
+                boundaryForce += f;
+            } 
+            else {
+                uiForce += f;
+            }
+        }
+    }
+
+
+    if (uiForce.length() > globalUiForceLimit) {
+        uiForce = uiForce.normalized() * globalUiForceLimit;
+    }
+
+    // Combine: Clamped UI + Unclamped Walls
+    return uiForce + boundaryForce;
 }
 
 

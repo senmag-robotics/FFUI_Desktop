@@ -160,9 +160,9 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
 
     if (typeMatch) { 
       
-        if (IsElementClickable(pElement)) {
+     //   if (IsElementClickable(pElement)) {
             results.push_back(elem);
-        }
+      //  }
     }
     /*    filterType == UIElementType::NoFilter || elem.type == filterType)*/
 
@@ -206,7 +206,7 @@ std::vector<ScannedUIElement> WindowScanner::scanDesktop(std::vector<UIElementTy
     return results;
 }
 
-std::vector<ScannedUIElement> WindowScanner::scanFocusedWindow(std::vector<UIElementType> typesToScan) {
+std::vector<ScannedUIElement> WindowScanner::scanFocusedWindow(const std::vector<UIElementType>& typesToScan) {
 
     std::vector<ScannedUIElement> results;
     if (!pAutomation) return results;
