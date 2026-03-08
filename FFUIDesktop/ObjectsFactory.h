@@ -7,13 +7,7 @@
 //This Creates FFUIObject subclasses automatically from scanned elements
 
 
-// Extended metadata for UI-linked objects
-struct FFUIObject_UIMeta : public FFUIObject_Meta {
-    UIElementType       uiType;
-    std::wstring        accessibleName;  // For TTS
-    HWND                linkedHwnd;
-    RECT                screenRect;
-};
+
 
 class ObjectFactory {
 public:

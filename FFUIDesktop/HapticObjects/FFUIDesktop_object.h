@@ -3,6 +3,8 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <Windows.h>
+#include "../WindowScanner.h"
 
 #include "HapticVibration.h"
 
@@ -38,9 +40,18 @@ typedef struct {
 	Quaternion	orientation;
 	HapticSolidProperties	hapticSolidProperties;
 	std::string		customName;
+	bool snappedToThis;
 	
 }FFUIObject_Meta;
 
+
+
+struct FFUIObject_UIMeta : public FFUIObject_Meta {
+	UIElementType       uiType;
+	std::wstring        accessibleName;
+	HWND                linkedHwnd;
+	RECT                screenRect;
+};
 
 
 class FFUIObject {
@@ -53,6 +64,13 @@ public:
 	const FFUIObject_Meta& getMeta() const {
 		return objectMeta;
 	}
+	const FFUIObject_UIMeta& getUIMeta() const {
+		return uiMeta;
+	}
+	void setSnapped(bool state) {
+		 objectMeta.snappedToThis = state;
+
+	}
 
 	virtual Vector3	calculateInteractionForce(Location localLoc);
 
@@ -63,7 +81,7 @@ public:
 protected:
 
 	FFUIObject_Meta	objectMeta;
-
+	FFUIObject_UIMeta uiMeta;
 
 
 private:

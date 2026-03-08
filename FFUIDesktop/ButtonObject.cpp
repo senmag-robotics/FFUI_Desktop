@@ -1,7 +1,9 @@
 #include "ButtonObject.h"
 #include <cmath>
+#include "ObjectsFactory.h"
 
-ButtonObject::ButtonObject(FFUIObject_Meta meta) : FFUIObject(meta) {
+ButtonObject::ButtonObject(FFUIObject_UIMeta meta) : FFUIObject(meta) {
+    this->uiMeta = meta;
 	//objectInit();
 	//Should I add a vibration effect for the button? Maybe a short pulse when the button is pressed?
 
@@ -14,7 +16,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
 
 
     //We adjust z axis.
-    Vector3 adjustedLocalLoc(localLoc.position.x, localLoc.position.y, localLoc.position.z - 100);
+    Vector3 adjustedLocalLoc(localLoc.position.x, localLoc.position.y, localLoc.position.z);
     // Button center is at the local origin
     const Vector3 buttonCenter(0, 0, 0);
 
@@ -46,7 +48,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
     bool withinY = std::abs(adjustedLocalLoc.y) < yAttractionRange - boundaryMinimizationRange;
     bool withinZ = std::abs(adjustedLocalLoc.z) < zAttractionRange - boundaryMinimizationRange; // works for small or large
 
-    if (withinX && withinY && withinZ) {
+    if (withinX && withinY && withinZ && !FFUIDesktop::currentSnapAnchor.isTracking) {
         float distance = toCenter.length();
 
         force = toCenter * objectMeta.hapticSolidProperties.stiffness * 5;
@@ -60,26 +62,51 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
       //  //force = dir * attractionMagnitude;
         float maxForce = objectMeta.hapticSolidProperties.solidForceLimit;
 
-        Vector3 dir = toCenter / distance;
+       // Vector3 dir = toCenter / distance;
 
     
-        float minDimension = std::min(objectMeta.scale.x, objectMeta.scale.y);
+        float minDimension = (std::min)(objectMeta.scale.x, objectMeta.scale.y);
 
      
-        float stabilityFactor = std::max(minDimension, 15.0f);
+        float stabilityFactor = (std::max)(minDimension, 15.0f);
 
         // Calculate Effective Stiffness
         // We ensure we don't exceed the stiffness of a 'stabilityFactor' sized button
         float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 13) / stabilityFactor;
 
-        force = dir * (effectiveStiffness * distance);
+
+        force = toCenter * (effectiveStiffness);
         force.z = 0;
+
+        
 
         if (force.length() > maxForce) {
             force *= maxForce / force.length();
         }
 
-    }
 
+       // std::cout << "flag1: " << objectMeta.snappedToThis << std::endl;
+
+     
+
+    }
+    
+
+        if (objectMeta.snappedToThis ) {
+
+            float minDimension = (std::min)(objectMeta.scale.x, objectMeta.scale.y);
+
+
+            float stabilityFactor = (std::max)(minDimension, 15.0f);
+            float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 13) / stabilityFactor;
+
+            Vector3 here(0, 0, 150);
+            force = here - localLoc.position;
+            force = force * effectiveStiffness * 8;
+            if (force.length() > objectMeta.hapticSolidProperties.solidForceLimit * 3) {
+                force *= objectMeta.hapticSolidProperties.solidForceLimit / force.length();
+            }
+        }
+  
     return force;
 }

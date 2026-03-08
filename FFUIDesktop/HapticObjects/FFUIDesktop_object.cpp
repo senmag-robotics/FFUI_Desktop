@@ -38,6 +38,7 @@ Vector3 FFUIObject::calculateInteractionForce(Location localPos) {
 
 Vector3 FFUIObject::calculateSnappingForceToThis(Location stylusLocation)
 {
+
 	Vector3 snappingForce = Vector3(0, 0, 0);
 	Vector3 direction = objectMeta.globalPosition - stylusLocation.position;
 

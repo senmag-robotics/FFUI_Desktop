@@ -1,6 +1,8 @@
 #include "ObjectsFactory.h"
 #include "FFUIDesktop.h"
 
+
+
 Vector3 ObjectFactory::screenToWorkspace(Vector2 screenPos, Vector2 screenSize, float workspaceX, float workspaceY)
 {
 
@@ -106,7 +108,22 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 
         uiMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
 
-        //uIMeta.globalPosition = Vector3(elem.center.x, elem.center.y + 5, z);
+        uiMeta.snappedToThis = false;
+
+        if (FFUIDesktop::currentSnapAnchor.isTracking) {
+        
+            float dist = (uiMeta.globalPosition - FFUIDesktop::currentSnapAnchor.originalPosition).length();
+
+            if (uiMeta.accessibleName == FFUIDesktop::currentSnapAnchor.objectWindowsName ) {
+             //   printf("Snapped to this\n");
+                uiMeta.snappedToThis = true; 
+
+                FFUIDesktop::currentSnapAnchor.originalPosition = uiMeta.globalPosition;
+            }
+        }
+
+
+
 
         if(!dublicatePositionsExist(theCreatedUIObjects, uiMeta))
         theCreatedUIObjects.emplace_back(std::make_unique<ButtonObject>(uiMeta));

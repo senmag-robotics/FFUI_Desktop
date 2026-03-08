@@ -3,6 +3,9 @@
 #include "WindowScanner.h"
 #include <thread>
 
+// Define static member
+SnapAnchor FFUIDesktop::currentSnapAnchor;
+
 // Helper function to send input cleanly
 void SendMouseInput(DWORD flags, DWORD data = 0) {
 	INPUT input = { 0 };
@@ -73,9 +76,10 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 		}
 
 	
-		
+		//Critical Section minimised: 
 		std::lock_guard<std::mutex> lock(
 			objectsListMutex);
+
 		if (!layers.empty()) {
 			std::swap(layers[0].objects, newObjects);
 		}
@@ -136,16 +140,26 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 }
 //calculates the force to the closest object (that is not a boundary) to the cursor 
 
-Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc) {
+Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool buttonClicked) {
 	Vector3 snappingForce(0, 0, 0);
-	if (layers.empty() || layers[0].objects.empty()) return snappingForce;
 
 
 	std::lock_guard<std::mutex> lock(objectsListMutex);
+	if (layers.empty() || layers[0].objects.empty()) return snappingForce;
 
-	FFUIObject* closestObject = layers[0].objects[0].get();
-	float minDistance = (layers[0].objects[0]->getMeta().globalPosition - 
-	                     Vector3(cursorPos.x, cursorPos.y, 0)).length();
+
+
+	FFUIObject* closestObject = nullptr;
+
+
+	float minDistance = (layers[0].objects[0]->getMeta().globalPosition -
+		Vector3(cursorPos.x, cursorPos.y, 0)).length();
+
+
+	//Vector3 postionIn2d(layers[0].objects[0]->getMeta().globalPosition.x,
+	//	layers[0].objects[0]->getMeta().globalPosition.y, 0);
+	//float minDistance = (postionIn2d -
+	//                     Vector3(cursorPos.x, cursorPos.y, 0)).length();
 	
 	for (const auto& object : layers[0].objects) {
 		//We skip if this object is a boundary (has "Boundary" in its name)
@@ -160,9 +174,45 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc) {
 			minDistance = distanceToThisObject;
 			closestObject = object.get();
 		}
+
+		object->setSnapped(false);
 	}
 	if (closestObject != nullptr) {
+
+		//To enable the feature of snapping inplace of an object when side button is clicked. Move this line
+		//Inside the else of the next if, and remove "buttonClicked = false"
 		snappingForce = closestObject->calculateSnappingForceToThis(deviceLoc);
+
+
+		if (minDistance < closestObject->getMeta().scale.x && minDistance < closestObject->getMeta().scale.y) {
+
+
+			//Remove this line to enable feature
+			buttonClicked = false;
+			if (buttonClicked) {
+
+				stylusSnapped = !stylusSnapped;
+
+				std::cout << "is: " << stylusSnapped << std::endl;
+
+				closestObject->setSnapped(stylusSnapped);
+
+				currentSnapAnchor.isTracking = stylusSnapped;
+				currentSnapAnchor.objectWindowsName = closestObject->getUIMeta().accessibleName;
+				currentSnapAnchor.originalPosition = closestObject->getUIMeta().globalPosition;
+
+			}
+
+			//std::cout << "Was: " << closestObject->getMeta().snappedToThis << std::endl;
+			//std::cout << "Is: " << stylusSnapped << std::endl;
+			
+
+		}
+		else {
+			//std::wcout << "Mystery object: " << closestObject->getUIMeta(). << std::endl;
+
+
+		}
 	}
 
 	return snappingForce;
@@ -269,8 +319,16 @@ void FFUIDesktop::updateFrame() {
 				//side button
 				//Released
 				if ((currentInput >> 7 & 0x1) == 1 && (stylusState_previous >> 7 & 0x1) == 0) {
-			
 
+					//SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
+				}
+				bool buttonClicked = false;
+				//side button
+				//Initial press
+				if ((currentInput >> 7 & 0x1) == 0 && (stylusState_previous >> 7 & 0x1) == 1) {
+				//	std::cout << "flag1: " << stylusSnapped << std::endl;
+
+					buttonClicked = true;
 					//SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
 				}
 			
@@ -295,7 +353,7 @@ void FFUIDesktop::updateFrame() {
 				if ((currentInput >> 7 & 0x1) == 0) {
 
 			
-					force = calculateForceToClosestObject(deviceLoc);
+					force = calculateForceToClosestObject(deviceLoc, buttonClicked);
 				}
 				
 

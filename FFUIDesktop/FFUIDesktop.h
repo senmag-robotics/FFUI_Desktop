@@ -5,6 +5,7 @@
 #include <windows.h>
 #include "SenmagConnect.h"
 #include <thread> // Ensure this is included
+#include <stop_token>
 
 #include "DeviceManager.h"
 
@@ -19,6 +20,14 @@
 #define DEVICE_WORKSPACE_OFFSETY	0
 
 #define SCROLL_REPEAT_RATE	10			//scroll ops per second
+
+// Inside your main Manager class (e.g., FFUIDesktop.h)
+
+struct SnapAnchor {
+	bool isTracking = false;
+	std::wstring objectWindowsName;
+	Vector3 originalPosition = Vector3(0, 0, 0);
+};
 
 
 typedef struct {
@@ -41,6 +50,7 @@ private:
 
 class FFUIDesktop {
 public:
+	static SnapAnchor currentSnapAnchor;
 
 	void		initDesktop(FFUIDesktop_Config config);
 	void		updateFrame();
@@ -60,11 +70,14 @@ public:
 	std::vector<std::unique_ptr<FFUIObject>> objects;
 
 private:
+
 	void addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList);
 	FFUIDesktop_Config	desktopConfig;
 
+	bool stylusSnapped = false;
+
 	Vector2 cursorPos;
-	Vector3 calculateForceToClosestObject(Location deviceLoc);
+	Vector3 calculateForceToClosestObject(Location deviceLoc,  bool buttonClicked);
 
 	Vector2 cusrsorScale;		//the scale factor between device workspace and digital workspace
 };
