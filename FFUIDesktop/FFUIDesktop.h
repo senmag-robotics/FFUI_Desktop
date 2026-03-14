@@ -4,7 +4,7 @@
 #include "mathTypes.h"
 #include <windows.h>
 #include "SenmagConnect.h"
-#include <thread> // Ensure this is included
+#include <thread> 
 #include <stop_token>
 
 #include "DeviceManager.h"
