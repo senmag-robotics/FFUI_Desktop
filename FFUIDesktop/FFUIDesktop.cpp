@@ -56,14 +56,11 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 			std::vector<ScannedUIElement> focusedWindowElements = scanner.scanFocusedWindow(typesToScan);
 			std::vector<ScannedUIElement> windows = scanner.fetchAllOpenWindows();
 			
-			for (ScannedUIElement elem : windows) {
-				//upgrading console printing capabilityes
-				_setmode(_fileno(stdout), _O_U16TEXT);
-				//std::wcout << elem.name << std::endl;
-			
-
-
-			}
+			//for (ScannedUIElement elem : windows) {
+			//	//upgrading console printing capabilityes
+			//	_setmode(_fileno(stdout), _O_U16TEXT);
+			//	std::wcout << elem.name << std::endl
+			//}
 
 			std::vector<ScannedUIElement> taskbarElements = scanner.scanTaskBar(typesToScan);
 

@@ -85,14 +85,11 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
         FFUIObject_UIMeta uiMeta{};
         uiMeta.accessibleName = elem.name;
         uiMeta.uiType = elem.type;
-        Vector2 elemScreenPosition;
         //uIMeta.scale = Vector3(3, 3, z);
 
       
         uiMeta.hapticSolidProperties = hapticPropsOfThisElemType;
 
-
-        //Vector2 newPos(elem.center.x - 0.5 * elem.size.x, elem.center.y + elem.size.y);
         uiMeta.globalPosition = screenToWorkspace(
             elem.center ,
             //newPos,

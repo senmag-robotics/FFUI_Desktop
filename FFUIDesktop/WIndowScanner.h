@@ -55,10 +55,7 @@ public:
 
     std::vector<ScannedUIElement> fetchAllOpenWindows();
 
-    //std::vector<ScannedUIElement> scanTaskbarIcons();
-
-    //void scanWindow(HWND hwnd);
-    //ScannedUIElement getElementAt(int x, int y);
+  
 
     std::vector<HWND> foundWindowHandles;
 
@@ -67,7 +64,7 @@ private:
     IUIAutomation* pAutomation = nullptr;
     UIElementType mapControlType(int controlTypeId);
 
-    //
+    //An old style helper function to filter fetched windows from the old API function: EnumWindows()
     static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 
 
