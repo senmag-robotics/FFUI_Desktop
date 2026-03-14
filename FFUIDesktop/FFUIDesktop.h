@@ -4,20 +4,30 @@
 #include "mathTypes.h"
 #include <windows.h>
 #include "SenmagConnect.h"
+#include <thread> // Ensure this is included
+#include <stop_token>
 
 #include "DeviceManager.h"
 
 #include "HapticVibration.h"
 #include "SolidPlane.h"
 #include "ButtonObject.h"
-#define DEVICE_WORKSPACE_X	200
-#define DEVICE_WORKSPACE_Y	100
+#define DEVICE_WORKSPACE_X	300
+#define DEVICE_WORKSPACE_Y	250
 
 
 #define DEVICE_WORKSPACE_OFFSETX	0
 #define DEVICE_WORKSPACE_OFFSETY	0
 
 #define SCROLL_REPEAT_RATE	10			//scroll ops per second
+
+// Inside your main Manager class (e.g., FFUIDesktop.h)
+
+struct SnapAnchor {
+	bool isTracking = false;
+	std::wstring objectWindowsName;
+	Vector3 originalPosition = Vector3(0, 0, 0);
+};
 
 
 typedef struct {
@@ -40,26 +50,34 @@ private:
 
 class FFUIDesktop {
 public:
+	static SnapAnchor currentSnapAnchor;
 
 	void		initDesktop(FFUIDesktop_Config config);
 	void		updateFrame();
 	void		moveWindowsCursor(Vector2 targetPos);
 	Vector3		processForces(Location stylusLocation);
 
+	void initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config);
+
+
+	std::jthread scannerThread; 
 
 	std::vector<FFUIDesktop_Layer> layers;
 	DeviceManager deviceManager;
 
+	std::mutex objectsListMutex;
+
 	std::vector<std::unique_ptr<FFUIObject>> objects;
 
 private:
-	void addBoundaryPlanes();
-	void addDemoObjects(); // e.g., buttons/icons later
 
+	void addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList);
 	FFUIDesktop_Config	desktopConfig;
 
-	Vector2 cursorPos;
+	bool stylusSnapped = false;
 
+	Vector2 cursorPos;
+	Vector3 calculateForceToClosestObject(Location deviceLoc,  bool buttonClicked);
 
 	Vector2 cusrsorScale;		//the scale factor between device workspace and digital workspace
 };

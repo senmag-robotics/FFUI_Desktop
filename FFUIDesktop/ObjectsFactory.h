@@ -1,0 +1,32 @@
+#pragma once
+#include "WindowScanner.h"
+#include "ButtonObject.h"
+#include <memory>
+#include "FFUIDesktop.h"
+#include <cmath>
+//This Creates FFUIObject subclasses automatically from scanned elements
+
+
+
+
+class ObjectFactory {
+public:
+
+    // Convert screen coordinates to device workspace
+    static Vector3 screenToWorkspace(Vector2 screenPos,
+        Vector2 screenSize,
+        float workspaceX,
+        float workspaceY);
+
+    static std::vector<std::unique_ptr<FFUIObject>> createObjectsFromUIElements(
+        std::vector<ScannedUIElement>& scannedElements,
+        FFUIDesktop_Config config
+    );
+
+    static FFUIObject_Meta createDemoObject();
+
+
+
+private:
+    static HapticSolidProperties getHapticPropsOfType(UIElementType type);
+};

@@ -1,4 +1,10 @@
 #include "FFUIDesktop.h"
+#include "ObjectsFactory.h"
+#include "WindowScanner.h"
+#include <thread>
+
+// Define static member
+SnapAnchor FFUIDesktop::currentSnapAnchor;
 
 // Helper function to send input cleanly
 void SendMouseInput(DWORD flags, DWORD data = 0) {
@@ -20,12 +26,71 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 	cursorPos = { 0,0 };
 
-	addBoundaryPlanes();
-	addDemoObjects(); // optional starter objects
+	// a lambda to capture 'this' and 'config', and accept the 'st' (stop_token) from jthread
+	scannerThread = std::jthread([this, config](std::stop_token st) {
+		initiatePeriodicScanner(st, config);
+	});
+
+
 }
 
+//We create an updated list of objects by scanning then we lock the mutex only for hte moment of switching 
+//the old list with the new list. 
+ void FFUIDesktop::initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config) {
+	while (!stoken.stop_requested()) {
 
-void FFUIDesktop::addBoundaryPlanes() {
+		std::vector<std::unique_ptr<FFUIObject>> newObjects;
+		
+		addBoundaryPlanes(newObjects);
+
+		WindowScanner scanner;
+		if (scanner.initialize()) {
+			std::vector<UIElementType> typesToScan = { UIElementType::Button, UIElementType::ListItem, UIElementType::MenuItem };
+			std::vector<ScannedUIElement> allscannedElements;
+
+			
+			std::vector<ScannedUIElement> focusedWindowElements = scanner.scanFocusedWindow(typesToScan);
+			std::vector<ScannedUIElement> taskbarElements = scanner.scanTaskBar(typesToScan);
+
+
+			//Combiniing the scanned elements
+			allscannedElements
+				.reserve(focusedWindowElements.size() + taskbarElements.size());
+			allscannedElements.insert(allscannedElements.end(),
+				focusedWindowElements.begin(),
+				focusedWindowElements.end());
+
+			allscannedElements.insert(allscannedElements.end(),
+				taskbarElements.begin(),
+				taskbarElements.end());
+
+
+
+
+			std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
+				ObjectFactory::createObjectsFromUIElements(allscannedElements, config);
+
+			for (auto& obj : scannedObjects) {
+				newObjects.emplace_back(std::move(obj));
+			}
+		}
+
+	
+		//Critical Section minimised: 
+		std::lock_guard<std::mutex> lock(
+			objectsListMutex);
+
+		if (!layers.empty()) {
+			std::swap(layers[0].objects, newObjects);
+		}
+		
+	
+		// Prevent CPU hogging
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+}
+
+void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList) {
 	HapticSolidProperties props{};
 	props.stiffness = 0.001f;
 	props.solidForceLimit = 0.005f;
@@ -34,45 +99,125 @@ void FFUIDesktop::addBoundaryPlanes() {
 	meta.scale = Vector3(2000, 0, 2000);
 	meta.hapticSolidProperties = props;
 
+	// Front
+	meta.globalPosition = Vector3(0, 0, 130);
+	meta.orientation = Quaternion().setFromEuler(0, 0, 90);
+	meta.customName = "Workspace Front Boundary";
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
+
+	//// Back
+	//meta.globalPosition = Vector3(0, 0, 240);
+	//meta.orientation = Quaternion().setFromEuler(0, 0, -90);
+	//meta.customName = "Workspace Front Boundary";
+	//targetList.emplace_back(std::make_unique<SolidPlane>(meta));
+
 	// Bottom
-	meta.globalPosition = Vector3(0, -DEVICE_WORKSPACE_Y / 2, 0);
+	meta.globalPosition = Vector3(0, (-DEVICE_WORKSPACE_Y) / 2 + DEVICE_WORKSPACE_OFFSETY, 0);
 	meta.orientation = Quaternion().setFromEuler(1, 0, 0);
-	sprintf_s(meta.name, "%s", "Workspace Lower Bounds");
-	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
+	meta.customName = "Workspace Lower Boundary";
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Right
-	meta.globalPosition = Vector3(DEVICE_WORKSPACE_X / 2, 0, 0);
+	meta.globalPosition = Vector3(DEVICE_WORKSPACE_X / 2 + DEVICE_WORKSPACE_OFFSETX, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(90, 0, 0);
-	sprintf_s(meta.name, "%s", "Workspace Right Bounds");
-	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
+	meta.customName = "Workspace Right Boundary";
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Top
-	meta.globalPosition = Vector3(0, DEVICE_WORKSPACE_Y / 2, 0);
+	meta.globalPosition = Vector3(0, DEVICE_WORKSPACE_Y / 2 + DEVICE_WORKSPACE_OFFSETY, 0);
 	meta.orientation = Quaternion().setFromEuler(180, 0, 0);
-	sprintf_s(meta.name, "%s", "Workspace Upper Bounds");
-	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
+	meta.customName = "Workspace Upper Boundary";
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
 
 
 	// Left
-	meta.globalPosition = Vector3(-DEVICE_WORKSPACE_X / 2, 0, 0);
+	meta.globalPosition = Vector3(-DEVICE_WORKSPACE_X / 2 + DEVICE_WORKSPACE_OFFSETX, 0, 0);
 	meta.orientation = Quaternion().setFromEuler(270, 0, 0);
-	sprintf_s(meta.name, "%s", "Workspace Left Bounds");
-	layers[0].objects.emplace_back(std::make_unique<SolidPlane>(meta));
+	meta.customName = "Workspace Left Boundary";
+	targetList.emplace_back(std::make_unique<SolidPlane>(meta));
+}
+//calculates the force to the closest object (that is not a boundary) to the cursor 
+
+Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool buttonClicked) {
+	Vector3 snappingForce(0, 0, 0);
+
+
+	std::lock_guard<std::mutex> lock(objectsListMutex);
+	if (layers.empty() || layers[0].objects.empty()) return snappingForce;
+
+
+
+	FFUIObject* closestObject = nullptr;
+
+
+	float minDistance = (layers[0].objects[0]->getMeta().globalPosition -
+		Vector3(cursorPos.x, cursorPos.y, 0)).length();
+
+
+	//Vector3 postionIn2d(layers[0].objects[0]->getMeta().globalPosition.x,
+	//	layers[0].objects[0]->getMeta().globalPosition.y, 0);
+	//float minDistance = (postionIn2d -
+	//                     Vector3(cursorPos.x, cursorPos.y, 0)).length();
+	
+	for (const auto& object : layers[0].objects) {
+		//We skip if this object is a boundary (has "Boundary" in its name)
+		if (std::string(object->getMeta().customName).find("Boundary") != std::string::npos)
+			continue;
+
+		Vector3 objectPos = object->getMeta().globalPosition;
+		Vector3 cursorPos3D(cursorPos.x, cursorPos.y, 0);
+		float distanceToThisObject = (objectPos - cursorPos3D).length();
+		
+		if (distanceToThisObject < minDistance) {
+			minDistance = distanceToThisObject;
+			closestObject = object.get();
+		}
+
+		object->setSnapped(false);
+	}
+	if (closestObject != nullptr) {
+
+		//To enable the feature of snapping inplace of an object when side button is clicked. Move this line
+		//Inside the else of the next if, and remove "buttonClicked = false"
+		snappingForce = closestObject->calculateSnappingForceToThis(deviceLoc);
+
+
+		if (minDistance < closestObject->getMeta().scale.x && minDistance < closestObject->getMeta().scale.y) {
+
+
+			//Remove this line to enable feature
+			buttonClicked = false;
+			if (buttonClicked) {
+
+				stylusSnapped = !stylusSnapped;
+
+				std::cout << "is: " << stylusSnapped << std::endl;
+
+				closestObject->setSnapped(stylusSnapped);
+
+				currentSnapAnchor.isTracking = stylusSnapped;
+				currentSnapAnchor.objectWindowsName = closestObject->getUIMeta().accessibleName;
+				currentSnapAnchor.originalPosition = closestObject->getUIMeta().globalPosition;
+
+			}
+
+			//std::cout << "Was: " << closestObject->getMeta().snappedToThis << std::endl;
+			//std::cout << "Is: " << stylusSnapped << std::endl;
+			
+
+		}
+		else {
+			//std::wcout << "Mystery object: " << closestObject->getUIMeta(). << std::endl;
+
+
+		}
+	}
+
+	return snappingForce;
 }
 
-void FFUIDesktop::addDemoObjects() {
-	// Example: center button with no rotation
-	FFUIObject_Meta buttonMeta{};
-	buttonMeta.globalPosition = Vector3(0, 0, 50);
-	buttonMeta.scale = Vector3(20, 20, 20);
-	buttonMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
-	buttonMeta.hapticSolidProperties.stiffness = 0.0002f;
-	//buttonMeta.hapticSolidProperties.solidForceLimit = 0.01f;
-	sprintf_s(buttonMeta.name, "%s", "Center Button");
-	layers[0].objects.emplace_back(std::make_unique<ButtonObject>(buttonMeta));
-}
 
 
 void FFUIDesktop::updateFrame() {
@@ -174,13 +319,19 @@ void FFUIDesktop::updateFrame() {
 				//side button
 				//Released
 				if ((currentInput >> 7 & 0x1) == 1 && (stylusState_previous >> 7 & 0x1) == 0) {
-					SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
-				}
-				//Pressed
-				if ((currentInput >> 7 & 0x1) == 0 && (stylusState_previous >> 7 & 0x1) == 1) {
-					SendMouseInput(MOUSEEVENTF_XDOWN, XBUTTON1);
 
+					//SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
 				}
+				bool buttonClicked = false;
+				//side button
+				//Initial press
+				if ((currentInput >> 7 & 0x1) == 0 && (stylusState_previous >> 7 & 0x1) == 1) {
+				//	std::cout << "flag1: " << stylusSnapped << std::endl;
+
+					buttonClicked = true;
+					//SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
+				}
+			
 
 				stylusState_previous = currentInput;
 
@@ -196,8 +347,14 @@ void FFUIDesktop::updateFrame() {
 				deviceLoc.orientation.i = deviceManager.devices[x].deviceStatus.orientation[1];
 				deviceLoc.orientation.j = deviceManager.devices[x].deviceStatus.orientation[2];
 				deviceLoc.orientation.k = deviceManager.devices[x].deviceStatus.orientation[3];
-				Vector3 force = processForces(deviceLoc);
+				Vector3 force = processForces(deviceLoc); //Interactive forces according to object type
 
+				//While side button is held down push towards closest object
+				if ((currentInput >> 7 & 0x1) == 0) {
+
+			
+					force = calculateForceToClosestObject(deviceLoc, buttonClicked);
+				}
 				
 
 				LibreOne_targets forceTargets;
@@ -212,13 +369,40 @@ void FFUIDesktop::updateFrame() {
 
 
 Vector3 FFUIDesktop::processForces(Location stylusLocation) {
-	Vector3 interactionForce = Vector3(0, 0, 0);
-	for (int x = 0; x < layers.size(); x++) {
-		for (int y = 0; y < layers[x].objects.size(); y++) {
-			interactionForce += layers[x].objects[y]->updateForces(stylusLocation);
-		}
-	}
-	return interactionForce;
+    Vector3 uiForce(0, 0, 0);
+    Vector3 boundaryForce(0, 0, 0);
+    
+
+    float globalUiForceLimit = 0.015f;
+
+    for (int x = 0; x < layers.size(); x++) {
+        for (int y = 0; y < layers[x].objects.size(); y++) {
+			std::lock_guard<std::mutex> lock(objectsListMutex);
+
+            // Calculate individual object force
+            Vector3 f = layers[x].objects[y]->updateForces(stylusLocation);
+
+            // Check if this is a boundary plane
+       
+            std::string name = layers[x].objects[y]->getMeta().customName;
+            
+            if (name.find("Boundary") != std::string::npos) {
+     
+                boundaryForce += f;
+            } 
+            else {
+                uiForce += f;
+            }
+        }
+    }
+
+
+    if (uiForce.length() > globalUiForceLimit) {
+        uiForce = uiForce.normalized() * globalUiForceLimit;
+    }
+
+    // Combine: Clamped UI + Unclamped Walls
+    return uiForce + boundaryForce;
 }
 
 

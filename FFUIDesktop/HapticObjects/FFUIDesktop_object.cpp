@@ -11,7 +11,9 @@ Vector3 FFUIObject::updateForces(Location cursorLocation) {
 
 	//process interaction with any child objects
 	//for (int x = 0; x < children.size(); x++) force += children[x]->updateForces(cursorLocation);		//pass the global location to children for processing...
-	force += forceLocalToGlobal(calculateInteractionForce(getLocalStylusLocation(cursorLocation)));							//pass the local position of the cursor to this object for processing...
+	force += forceLocalToGlobal(calculateInteractionForce(getLocalStylusLocation(cursorLocation)));//pass the local position of the cursor to this object for processing...
+	
+	
 	return force;
 }
 
@@ -33,3 +35,20 @@ Vector3 FFUIObject::calculateInteractionForce(Location localPos) {
 	// base version (maybe just zero force)
 	return Vector3(0, 0, 0);
 }
+
+Vector3 FFUIObject::calculateSnappingForceToThis(Location stylusLocation)
+{
+
+	Vector3 snappingForce = Vector3(0, 0, 0);
+	Vector3 direction = objectMeta.globalPosition - stylusLocation.position;
+
+	snappingForce = direction * objectMeta.hapticSolidProperties.stiffness;
+
+	snappingForce.z = 0;
+	float maxSnappingForce = objectMeta.hapticSolidProperties.solidForceLimit * 2;
+	if (snappingForce.length() > maxSnappingForce) {
+		snappingForce = snappingForce.normalized() * maxSnappingForce;
+	}
+	return snappingForce;
+}
+
