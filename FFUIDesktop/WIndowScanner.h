@@ -5,7 +5,8 @@
 #include <memory>
 #include "../mathTypes.h"
 #include <Windows.h> 
-
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib") // Tells Visual Studio to link the DWM library
 #pragma comment(lib, "oleaut32.lib")
 
 // Types of UI elements we can detect
@@ -46,24 +47,28 @@ public:
     bool initialize();
     void shutdown();
 
-    std::vector<ScannedUIElement> scanDesktop(std::vector<UIElementType> typesToScan);
+    std::vector<ScannedUIElement> scanDesktop(const std::vector<UIElementType>& typesToScan);
 
     std::vector<ScannedUIElement> scanFocusedWindow(const std::vector<UIElementType>& typesToScan);
 
-    std::vector<ScannedUIElement> scanTaskBar(std::vector<UIElementType> typesToScan);
+    std::vector<ScannedUIElement> scanTaskBar(const std::vector<UIElementType>& typesToScan);
+
+    std::vector<ScannedUIElement> fetchAllOpenWindows();
 
     //std::vector<ScannedUIElement> scanTaskbarIcons();
 
     //void scanWindow(HWND hwnd);
     //ScannedUIElement getElementAt(int x, int y);
 
-
+    std::vector<HWND> foundWindowHandles;
 
 
 private:
     IUIAutomation* pAutomation = nullptr;
-
     UIElementType mapControlType(int controlTypeId);
+
+    //
+    static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 
 
     void processElement(IUIAutomationElement* pElement,
@@ -75,3 +80,4 @@ private:
         bool recurse,
         const std::vector<UIElementType>& typesToScan);
 };
+

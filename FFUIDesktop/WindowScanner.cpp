@@ -194,7 +194,7 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
 }
 
 //We get the root element in the desktop, then we traverse all of its children
-std::vector<ScannedUIElement> WindowScanner::scanDesktop(std::vector<UIElementType> typesToScan) {
+std::vector<ScannedUIElement> WindowScanner::scanDesktop(const std::vector<UIElementType>& typesToScan) {
     std::vector<ScannedUIElement> results;
     if (!pAutomation) return results;
 
@@ -227,7 +227,7 @@ std::vector<ScannedUIElement> WindowScanner::scanFocusedWindow(const std::vector
     
 }
 
-std::vector<ScannedUIElement> WindowScanner::scanTaskBar(std::vector<UIElementType> typesToScan) {
+std::vector<ScannedUIElement> WindowScanner::scanTaskBar(const std::vector<UIElementType>& typesToScan) {
 
     std::vector<ScannedUIElement> results;
     if (!pAutomation) return results;
@@ -260,8 +260,50 @@ std::vector<ScannedUIElement> WindowScanner::scanTaskBar(std::vector<UIElementTy
     return results;
 }
 
+//This function recieves every window and we return TRUE 
+//All the time because that's how  we recieve the next window.
+BOOL CALLBACK WindowScanner::EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+
+    //skip if it's a hidden background window
+    if (!IsWindowVisible(hwnd)) return TRUE;
+
+    //Skip if it doesn't have a name (a backgorund window as well)
+    int length = GetWindowTextLength(hwnd);
+    if (length == 0) return TRUE;
 
 
+    LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+    if (exStyle & WS_EX_TOOLWINDOW) return TRUE;
 
+    int cloaked = 0;
+    HRESULT hr = DwmGetWindowAttribute(hwnd, DWMWA_CLOAKED, &cloaked, sizeof(cloaked));
+    if (SUCCEEDED(hr) && cloaked != 0) {
+        return TRUE;
+    }
+    //We reconstruct the reference to localHandles to add the current one.
+    std::vector<HWND>* pHandles = reinterpret_cast<std::vector<HWND>*>(lParam);
+    pHandles->push_back(hwnd);
 
+    return TRUE; 
+}
 
+std::vector<ScannedUIElement> WindowScanner::fetchAllOpenWindows() {
+    std::vector<ScannedUIElement> windows;
+    std::vector<HWND> localHandles;
+
+    EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&localHandles));
+
+    //We loop through all the handles and create ScannedUIEelments of each
+    //using processElement. 
+    for (HWND hwnd : localHandles) {
+        IUIAutomationElement* pWindowElement = nullptr;
+        HRESULT hr = pAutomation->ElementFromHandle(hwnd, &pWindowElement);
+
+        if (SUCCEEDED(hr) && pWindowElement) {
+
+            processElement(pWindowElement, windows, false);
+        }
+    }
+
+    return windows;
+}

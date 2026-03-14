@@ -2,7 +2,11 @@
 #include "ObjectsFactory.h"
 #include "WindowScanner.h"
 #include <thread>
+#include <iostream>
 
+//We use these libraries to upgrade what the console can print with wcout
+#include <fcntl.h>
+#include <io.h>
 // Define static member
 SnapAnchor FFUIDesktop::currentSnapAnchor;
 
@@ -50,6 +54,17 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 			
 			std::vector<ScannedUIElement> focusedWindowElements = scanner.scanFocusedWindow(typesToScan);
+			std::vector<ScannedUIElement> windows = scanner.fetchAllOpenWindows();
+			
+			for (ScannedUIElement elem : windows) {
+				//upgrading console printing capabilityes
+				_setmode(_fileno(stdout), _O_U16TEXT);
+				//std::wcout << elem.name << std::endl;
+			
+
+
+			}
+
 			std::vector<ScannedUIElement> taskbarElements = scanner.scanTaskBar(typesToScan);
 
 

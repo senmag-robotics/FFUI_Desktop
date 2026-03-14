@@ -143,6 +143,7 @@
     <ClCompile Include="SenmagConnect\SenmagConnect.cpp" />
     <ClCompile Include="SenmagConnect\SerialComms.cpp" />
     <ClCompile Include="WindowScanner.cpp" />
+    <ClCompile Include="WindowWallObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ButtonObject.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="SenmagConnect\DeviceManager.h" />
     <ClInclude Include="SenmagConnect\SenmagConnect.h" />
     <ClInclude Include="SenmagConnect\SerialComms.h" />
+    <ClInclude Include="WindowWallObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
