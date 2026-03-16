@@ -117,7 +117,7 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
 
     ScannedUIElement elem{};
 
-    BSTR name;
+    BSTR name = nullptr;
     if (SUCCEEDED(pElement->get_CurrentName(&name)) && name) {
         elem.name = name;
         SysFreeString(name);
@@ -271,6 +271,7 @@ BOOL CALLBACK WindowScanner::EnumWindowsProc(HWND hwnd, LPARAM lParam) {
     int length = GetWindowTextLength(hwnd);
     if (length == 0) return TRUE;
 
+ 
 
     LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
     if (exStyle & WS_EX_TOOLWINDOW) return TRUE;
@@ -279,7 +280,11 @@ BOOL CALLBACK WindowScanner::EnumWindowsProc(HWND hwnd, LPARAM lParam) {
     HRESULT hr = DwmGetWindowAttribute(hwnd, DWMWA_CLOAKED, &cloaked, sizeof(cloaked));
     if (SUCCEEDED(hr) && cloaked != 0) {
         return TRUE;
+
     }
+
+
+
     //We reconstruct the reference to localHandles to add the current one.
     std::vector<HWND>* pHandles = reinterpret_cast<std::vector<HWND>*>(lParam);
     pHandles->push_back(hwnd);
@@ -302,8 +307,14 @@ std::vector<ScannedUIElement> WindowScanner::fetchAllOpenWindows() {
         if (SUCCEEDED(hr) && pWindowElement) {
 
             processElement(pWindowElement, windows, false);
+
+     
         }
-    }
+
+        pWindowElement->Release();
+
+     }
+    
 
     return windows;
 }

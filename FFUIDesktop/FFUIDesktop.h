@@ -6,12 +6,17 @@
 #include "SenmagConnect.h"
 #include <thread> 
 #include <stop_token>
-
 #include "DeviceManager.h"
 
 #include "HapticVibration.h"
 #include "SolidPlane.h"
 #include "ButtonObject.h"
+
+//We use these libraries to upgrade what the console can print with wcout
+#include <fcntl.h>
+#include <io.h>
+
+
 #define DEVICE_WORKSPACE_X	300
 #define DEVICE_WORKSPACE_Y	250
 

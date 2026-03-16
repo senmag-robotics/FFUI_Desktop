@@ -4,9 +4,7 @@
 #include <thread>
 #include <iostream>
 
-//We use these libraries to upgrade what the console can print with wcout
-#include <fcntl.h>
-#include <io.h>
+
 // Define static member
 SnapAnchor FFUIDesktop::currentSnapAnchor;
 
@@ -49,17 +47,26 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 		WindowScanner scanner;
 		if (scanner.initialize()) {
-			std::vector<UIElementType> typesToScan = { UIElementType::Button, UIElementType::ListItem, UIElementType::MenuItem };
+			std::vector<UIElementType> typesToScan = { UIElementType::Button,
+				UIElementType::ListItem,
+				UIElementType::MenuItem,
+				};
 			std::vector<ScannedUIElement> allscannedElements;
 
 			
 			std::vector<ScannedUIElement> focusedWindowElements = scanner.scanFocusedWindow(typesToScan);
 			std::vector<ScannedUIElement> windows = scanner.fetchAllOpenWindows();
+
+			//std::vector<ScannedUIElement> windows = scanner.fetchAllOpenWindows();
 			
-			//for (ScannedUIElement elem : windows) {
+			//for (ScannedUIElement elem : focusedWindowElements) {
 			//	//upgrading console printing capabilityes
-			//	_setmode(_fileno(stdout), _O_U16TEXT);
-			//	std::wcout << elem.name << std::endl
+			//	if (elem.type == UIElementType::Window) {
+			//		_setmode(_fileno(stdout), _O_U16TEXT);
+			//		std::wcout << elem.name << std::endl;
+
+			//	}
+			//	
 			//}
 
 			std::vector<ScannedUIElement> taskbarElements = scanner.scanTaskBar(typesToScan);
@@ -67,7 +74,7 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 			//Combiniing the scanned elements
 			allscannedElements
-				.reserve(focusedWindowElements.size() + taskbarElements.size());
+				.reserve(focusedWindowElements.size() + taskbarElements.size() + windows.size());
 			allscannedElements.insert(allscannedElements.end(),
 				focusedWindowElements.begin(),
 				focusedWindowElements.end());
@@ -75,6 +82,10 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 			allscannedElements.insert(allscannedElements.end(),
 				taskbarElements.begin(),
 				taskbarElements.end());
+
+			allscannedElements.insert(allscannedElements.end(),
+					windows.begin(),
+					windows.end());
 
 
 
@@ -93,6 +104,8 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 			objectsListMutex);
 
 		if (!layers.empty()) {
+			WindowManager::getInstance().ActiveWindows.clear();
+			WindowManager::getInstance().ArchivedWindows.clear();
 			std::swap(layers[0].objects, newObjects);
 		}
 		

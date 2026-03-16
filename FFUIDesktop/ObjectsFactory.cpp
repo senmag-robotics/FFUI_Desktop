@@ -3,12 +3,12 @@
 
 
 
-Vector3 ObjectFactory::screenToWorkspace(Vector2 screenPos, Vector2 screenSize, float workspaceX, float workspaceY)
+Vector3 ObjectFactory::screenToWorkspace(Vector2 screenPos, Vector2 screenSize, float zPosition, float workspaceX, float workspaceY)
 {
 
     float x = (screenPos.x / screenSize.x - 0.5f) * workspaceX;
     float y = (0.5f - screenPos.y / screenSize.y) * workspaceY;
-    return Vector3(x, y, 0);
+    return Vector3(x, y, zPosition);
 }
 HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
 {
@@ -33,6 +33,12 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
 
     case UIElementType::MenuItem:
         props.stiffness = 0.0007f;
+        props.solidForceLimit = 0.0012;
+
+        break;
+
+    case UIElementType::Window:
+        props.stiffness = 0.0009f;
         props.solidForceLimit = 0.0012;
 
     default: return props;
@@ -90,41 +96,103 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
       
         uiMeta.hapticSolidProperties = hapticPropsOfThisElemType;
 
-        uiMeta.globalPosition = screenToWorkspace(
-            elem.center ,
-            //newPos,
-            config.screenSize,
-            DEVICE_WORKSPACE_X,
-            DEVICE_WORKSPACE_Y);
-
-          uiMeta.scale = Vector3(
-            elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X,
-            elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y,
-           z);  // Z depth for haptic interaction
-
-
-        uiMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
-
-        uiMeta.snappedToThis = false;
-
-        if (FFUIDesktop::currentSnapAnchor.isTracking) {
+        switch (elem.type) {
         
-            float dist = (uiMeta.globalPosition - FFUIDesktop::currentSnapAnchor.originalPosition).length();
+        case UIElementType::Window:
+        {
+            WindowWallMeta windowMeta{};
+            windowMeta.windowHandle = elem.hwnd;
+            windowMeta.windowTitle = elem.name;
+            windowMeta.isArchived = false;
+            windowMeta.isGrabbed = false;
 
-            if (uiMeta.accessibleName == FFUIDesktop::currentSnapAnchor.objectWindowsName ) {
-             //   printf("Snapped to this\n");
-                uiMeta.snappedToThis = true; 
+            float centerZ = 160 + 30 * WindowManager::getInstance().ActiveWindows.size();
 
-                FFUIDesktop::currentSnapAnchor.originalPosition = uiMeta.globalPosition;
+            Vector3 position = screenToWorkspace(
+                elem.center,
+                config.screenSize,
+                centerZ,
+                DEVICE_WORKSPACE_X,
+                DEVICE_WORKSPACE_Y);
+
+            float thickness = 10.0f;
+            float stiffness = hapticPropsOfThisElemType.stiffness;
+            float solidForceLimit = hapticPropsOfThisElemType.solidForceLimit;
+
+            float height = elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y;
+            float width = elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X;
+            //printf("Width: %f\n", width);
+            //printf("height: %f\n", height);
+
+           // WindowWallObject windowWall(windowMeta, startZ, thickness, stiffness, height, width);
+    
+          
+            theCreatedUIObjects.emplace_back(std::make_unique<WindowWallObject>(windowMeta, position, thickness,
+                stiffness, solidForceLimit,
+                height, width));
+            WindowWallObject* wallPointer = static_cast<WindowWallObject*>(theCreatedUIObjects.back().get());
+
+            if (WindowManager::getInstance().ActiveWindows.size() >= 1) {
+                WindowManager::getInstance().ArchivedWindows.push_back(wallPointer);
+                wallPointer->setArchivedState(true);
             }
+            else {
+                WindowManager::getInstance().ActiveWindows.push_back(wallPointer);
+                wallPointer->setArchivedState(false);
+
+            }
+            //std::cout << "---" << std::endl;
+
+            //for (auto* window : WindowManager::getInstance().ActiveWindows) {
+            //    		//_setmode(_fileno(stdout), _O_U16TEXT);
+
+            //    		std::cout << window->getMeta().customName << std::endl;
+
+            //}
+
+    break;
+}
+
+        default:
+
+            uiMeta.globalPosition = screenToWorkspace(
+                elem.center,
+                config.screenSize,
+                0, //zPosition
+                DEVICE_WORKSPACE_X,
+                DEVICE_WORKSPACE_Y);
+
+            uiMeta.scale = Vector3(
+                elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X,
+                elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y,
+                z);  // Z depth for haptic interaction
+
+
+            uiMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
+
+            uiMeta.snappedToThis = false;
+
+            if (FFUIDesktop::currentSnapAnchor.isTracking) {
+
+                float dist = (uiMeta.globalPosition - FFUIDesktop::currentSnapAnchor.originalPosition).length();
+
+                if (uiMeta.accessibleName == FFUIDesktop::currentSnapAnchor.objectWindowsName) {
+                    //   printf("Snapped to this\n");
+                    uiMeta.snappedToThis = true;
+
+                    FFUIDesktop::currentSnapAnchor.originalPosition = uiMeta.globalPosition;
+                }
+            }
+
+
+
+
+            if (!dublicatePositionsExist(theCreatedUIObjects, uiMeta))
+                theCreatedUIObjects.emplace_back(std::make_unique<ButtonObject>(uiMeta));
+            //uIMeta.globalPosition = screenToWorkspace();
+        
         }
-
-
-
-
-        if(!dublicatePositionsExist(theCreatedUIObjects, uiMeta))
-        theCreatedUIObjects.emplace_back(std::make_unique<ButtonObject>(uiMeta));
-        //uIMeta.globalPosition = screenToWorkspace();
+        
      
     }
 

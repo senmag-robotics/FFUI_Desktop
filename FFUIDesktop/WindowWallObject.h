@@ -19,13 +19,18 @@ class WindowWallObject : public FFUIObject {
 
 
 public:
-    WindowWallObject(WindowWallMeta meta, float startZ, float thickness, float stiffness, float height, float width);
+    WindowWallObject(WindowWallMeta meta, Vector3 position, float thickness, float stiffness, float solidForceLimit, float height, float width);
 
     const WindowWallMeta& getWallMeta() const { return windowMeta; }
     void setGrabbed(bool state) { windowMeta.isGrabbed = state; }
-
+    Vector3 calculateInteractionForce(Location localLoc) override;
    
-
+    void setArchivedState(bool state) {
+        windowMeta.isArchived = state;
+    }
+    bool isArchived() {
+        return windowMeta.isArchived;
+    }
 
 private:
     WindowWallMeta windowMeta;
@@ -45,7 +50,9 @@ public:
         return instance;
     }
 
-    std::vector<WindowWallObject> ActiveWindows;
+    std::vector<WindowWallObject*> ArchivedWindows;
+
+    std::vector<WindowWallObject*> ActiveWindows;
     std::mutex windowMutex;
 
     // Delete copy constructors to enforce the "Only One" rule

@@ -4,6 +4,8 @@
 #include <memory>
 #include "FFUIDesktop.h"
 #include <cmath>
+#include "WindowWallObject.h"
+
 //This Creates FFUIObject subclasses automatically from scanned elements
 
 
@@ -15,6 +17,7 @@ public:
     // Convert screen coordinates to device workspace
     static Vector3 screenToWorkspace(Vector2 screenPos,
         Vector2 screenSize,
+        float zPosition,
         float workspaceX,
         float workspaceY);
 

@@ -15,12 +15,13 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
 
 
 
-    //We adjust z axis.
-    Vector3 adjustedLocalLoc(localLoc.position.x, localLoc.position.y, localLoc.position.z);
+    ////We adjust z axis.
+    //Vector3 adjustedLocalLoc(localLoc.position.x, localLoc.position.y, localLoc.position.z);
+    Vector3 stylusPosition = localLoc.position;
     // Button center is at the local origin
     const Vector3 buttonCenter(0, 0, 0);
 
-    Vector3 toCenter = buttonCenter - adjustedLocalLoc;
+    Vector3 toCenter = buttonCenter - stylusPosition;
 
     // Guard against divide-by-zero / NaN
     if (!std::isfinite(toCenter.x) || !std::isfinite(toCenter.y) || !std::isfinite(toCenter.z)) {
@@ -44,9 +45,9 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
     //Attraction will not start unless cursor is within (actual boundary - boundaryMinimizationRange)
     float boundaryMinimizationRange = 0;
 
-    bool withinX = std::abs(adjustedLocalLoc.x) < xAttractionRange - boundaryMinimizationRange;
-    bool withinY = std::abs(adjustedLocalLoc.y) < yAttractionRange - boundaryMinimizationRange;
-    bool withinZ = std::abs(adjustedLocalLoc.z) < zAttractionRange - boundaryMinimizationRange; // works for small or large
+    bool withinX = std::abs(stylusPosition.x) < xAttractionRange - boundaryMinimizationRange;
+    bool withinY = std::abs(stylusPosition.y) < yAttractionRange - boundaryMinimizationRange;
+    bool withinZ = std::abs(stylusPosition.z) < zAttractionRange - boundaryMinimizationRange; // works for small or large
 
     if (withinX && withinY && withinZ && !FFUIDesktop::currentSnapAnchor.isTracking) {
         float distance = toCenter.length();
@@ -101,7 +102,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
             float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 13) / stabilityFactor;
 
             Vector3 here(0, 0, 150);
-            force = here - localLoc.position;
+            force = here - stylusPosition;
             force = force * effectiveStiffness * 8;
             if (force.length() > objectMeta.hapticSolidProperties.solidForceLimit * 3) {
                 force *= objectMeta.hapticSolidProperties.solidForceLimit / force.length();
