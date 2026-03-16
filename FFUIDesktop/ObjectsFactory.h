@@ -23,7 +23,9 @@ public:
 
     static std::vector<std::unique_ptr<FFUIObject>> createObjectsFromUIElements(
         std::vector<ScannedUIElement>& scannedElements,
-        FFUIDesktop_Config config
+        FFUIDesktop_Config config,
+        std::vector<WindowWallObject*>& tempActive,    
+        std::vector<WindowWallObject*>& tempArchived
     );
 
     static FFUIObject_Meta createDemoObject();

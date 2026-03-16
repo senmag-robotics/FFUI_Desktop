@@ -20,6 +20,10 @@
 #define DEVICE_WORKSPACE_X	300
 #define DEVICE_WORKSPACE_Y	250
 
+//The range of the z axis values that the device reaches (not counting the front wall)
+#define startZ	126.0f
+#define endZ	268.0f
+
 
 #define DEVICE_WORKSPACE_OFFSETX	0
 #define DEVICE_WORKSPACE_OFFSETY	0

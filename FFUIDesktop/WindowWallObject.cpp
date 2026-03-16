@@ -33,12 +33,55 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
         && withinX
         && withinZ
         ) {
-        printf("inside\n");
+
+        WindowManager::bringWindowToFront(this);
+        printf("inside \n");
+     		std::cout << objectMeta.customName << std::endl;
         printf("done\n");
+
+   //     setFocused(true);
 
     }
     
 
 
     return force;
+}
+
+
+void WindowManager::bringWindowToFront(WindowWallObject* targetWindow) {
+
+    if (targetWindow->isFocused()) return;
+
+   // printf("Switching to this window \n");
+
+    HWND hwnd = targetWindow->getWindowName().windowHandle;
+
+
+    HWND hCurWnd = GetForegroundWindow();
+    DWORD dwMyID = GetCurrentThreadId();
+    DWORD dwCurID = GetWindowThreadProcessId(hCurWnd, NULL);
+
+    AttachThreadInput(dwCurID, dwMyID, TRUE);
+
+    if (IsIconic(hwnd)) {
+        ShowWindow(hwnd, SW_RESTORE);
+    }
+
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+    SetForegroundWindow(hwnd);
+    SetFocus(hwnd);
+    SetActiveWindow(hwnd);
+
+    AttachThreadInput(dwCurID, dwMyID, FALSE);
+
+    std::lock_guard<std::mutex> lock(WindowManager::getInstance().windowMutex);
+    //Make this the only window that has isFocused set as true:
+    for (auto* window : WindowManager::getInstance().ActiveWindows) {
+        window->setFocused(false);
+    }
+    targetWindow->setFocused(true);
+
+
 }

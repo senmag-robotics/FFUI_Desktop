@@ -41,6 +41,11 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
  void FFUIDesktop::initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config) {
 	while (!stoken.stop_requested()) {
 
+		//Temporary active and archived windows lists to minimize critical section
+		//In the critical section we fill the content of the real ones with the temp ones.
+		std::vector<WindowWallObject*> tempActiveWindows;
+		std::vector<WindowWallObject*> tempArchivedWindows;
+
 		std::vector<std::unique_ptr<FFUIObject>> newObjects;
 		
 		addBoundaryPlanes(newObjects);
@@ -88,10 +93,12 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 					windows.end());
 
 
-
+		
 
 			std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
-				ObjectFactory::createObjectsFromUIElements(allscannedElements, config);
+				ObjectFactory::createObjectsFromUIElements(allscannedElements, config,
+					tempActiveWindows,
+					tempArchivedWindows);
 
 			for (auto& obj : scannedObjects) {
 				newObjects.emplace_back(std::move(obj));
@@ -100,12 +107,14 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 	
 		//Critical Section minimised: 
-		std::lock_guard<std::mutex> lock(
-			objectsListMutex);
+		//this locks both mutexes at the same time
+		std::scoped_lock doubleLock(objectsListMutex, WindowManager::getInstance().windowMutex);
 
 		if (!layers.empty()) {
-			WindowManager::getInstance().ActiveWindows.clear();
-			WindowManager::getInstance().ArchivedWindows.clear();
+
+
+			WindowManager::getInstance().ActiveWindows = tempActiveWindows;
+			WindowManager::getInstance().ArchivedWindows = tempArchivedWindows;
 			std::swap(layers[0].objects, newObjects);
 		}
 		
@@ -168,23 +177,14 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool buttonClicked) {
 	Vector3 snappingForce(0, 0, 0);
 
-
 	std::lock_guard<std::mutex> lock(objectsListMutex);
+
 	if (layers.empty() || layers[0].objects.empty()) return snappingForce;
-
-
 
 	FFUIObject* closestObject = nullptr;
 
-
 	float minDistance = (layers[0].objects[0]->getMeta().globalPosition -
 		Vector3(cursorPos.x, cursorPos.y, 0)).length();
-
-
-	//Vector3 postionIn2d(layers[0].objects[0]->getMeta().globalPosition.x,
-	//	layers[0].objects[0]->getMeta().globalPosition.y, 0);
-	//float minDistance = (postionIn2d -
-	//                     Vector3(cursorPos.x, cursorPos.y, 0)).length();
 	
 	for (const auto& object : layers[0].objects) {
 		//We skip if this object is a boundary (has "Boundary" in its name)
@@ -246,14 +246,8 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 
 
 void FFUIDesktop::updateFrame() {
-	/*Vector3 force = {0,0,0};
-	for (FFUIDesktop_Layer layer : layers)
-	{
-		for (FFUIObject object : layer.objects)
-		{
-			force += object.update(cursorPos);
-		}
-	}*/
+
+
 
 	deviceManager.update();
 	for (int x = 0; x < deviceManager.devices.size(); x++) {
@@ -372,7 +366,10 @@ void FFUIDesktop::updateFrame() {
 				deviceLoc.orientation.i = deviceManager.devices[x].deviceStatus.orientation[1];
 				deviceLoc.orientation.j = deviceManager.devices[x].deviceStatus.orientation[2];
 				deviceLoc.orientation.k = deviceManager.devices[x].deviceStatus.orientation[3];
+
 				Vector3 force = processForces(deviceLoc); //Interactive forces according to object type
+
+
 
 				//While side button is held down push towards closest object
 				if ((currentInput >> 7 & 0x1) == 0) {

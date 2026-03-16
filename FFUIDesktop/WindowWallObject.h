@@ -11,6 +11,7 @@ struct WindowWallMeta {
     std::wstring windowTitle;
     bool isArchived = false;
     bool isGrabbed = false;
+    bool isFocused = false;
 };
 
 
@@ -21,7 +22,7 @@ class WindowWallObject : public FFUIObject {
 public:
     WindowWallObject(WindowWallMeta meta, Vector3 position, float thickness, float stiffness, float solidForceLimit, float height, float width);
 
-    const WindowWallMeta& getWallMeta() const { return windowMeta; }
+    const WindowWallMeta& getWindowName() const { return windowMeta; }
     void setGrabbed(bool state) { windowMeta.isGrabbed = state; }
     Vector3 calculateInteractionForce(Location localLoc) override;
    
@@ -30,6 +31,13 @@ public:
     }
     bool isArchived() {
         return windowMeta.isArchived;
+    }
+
+    void setFocused(bool state) {
+        windowMeta.isFocused = state;
+    }
+    bool isFocused() {
+        return windowMeta.isFocused;
     }
 
 private:
@@ -49,11 +57,16 @@ public:
         static WindowManager instance; 
         return instance;
     }
+    static void bringWindowToFront(WindowWallObject* targetWindow);
+
 
     std::vector<WindowWallObject*> ArchivedWindows;
 
     std::vector<WindowWallObject*> ActiveWindows;
+
     std::mutex windowMutex;
+
+
 
     // Delete copy constructors to enforce the "Only One" rule
     WindowManager(WindowManager const&) = delete;

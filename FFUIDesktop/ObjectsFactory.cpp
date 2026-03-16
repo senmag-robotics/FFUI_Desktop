@@ -82,10 +82,14 @@ bool dublicatePositionsExist(std::vector<std::unique_ptr<FFUIObject>>& alreadyCr
 
 }
 std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIElements(std::vector<ScannedUIElement>& scannedElements,
-    FFUIDesktop_Config config)
+    FFUIDesktop_Config config,
+    std::vector<WindowWallObject*>& tempActiveWindows,    
+    std::vector<WindowWallObject*>& tempArchivedWindows)
 {
     float z = 2000;
     std::vector<std::unique_ptr<FFUIObject>> theCreatedUIObjects;
+    bool focusedWindowisSet = false;
+
     for (ScannedUIElement elem : scannedElements) {
         HapticSolidProperties hapticPropsOfThisElemType = getHapticPropsOfType(elem.type);
         FFUIObject_UIMeta uiMeta{};
@@ -106,12 +110,17 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             windowMeta.isArchived = false;
             windowMeta.isGrabbed = false;
 
-            float centerZ = 160 + 30 * WindowManager::getInstance().ActiveWindows.size();
+            float currentNumOfActive = tempActiveWindows.size();
+
+
+    
+            float zPos = endZ - 40
+                - 50 * currentNumOfActive;
 
             Vector3 position = screenToWorkspace(
                 elem.center,
                 config.screenSize,
-                centerZ,
+                zPos,
                 DEVICE_WORKSPACE_X,
                 DEVICE_WORKSPACE_Y);
 
@@ -121,23 +130,27 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 
             float height = elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y;
             float width = elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X;
-            //printf("Width: %f\n", width);
-            //printf("height: %f\n", height);
 
-           // WindowWallObject windowWall(windowMeta, startZ, thickness, stiffness, height, width);
     
           
             theCreatedUIObjects.emplace_back(std::make_unique<WindowWallObject>(windowMeta, position, thickness,
                 stiffness, solidForceLimit,
                 height, width));
+
             WindowWallObject* wallPointer = static_cast<WindowWallObject*>(theCreatedUIObjects.back().get());
 
-            if (WindowManager::getInstance().ActiveWindows.size() >= 1) {
-                WindowManager::getInstance().ArchivedWindows.push_back(wallPointer);
+            if (currentNumOfActive >= 2) {
+                tempArchivedWindows.push_back(wallPointer);
                 wallPointer->setArchivedState(true);
             }
             else {
-                WindowManager::getInstance().ActiveWindows.push_back(wallPointer);
+                tempActiveWindows.push_back(wallPointer);
+                //Default is false
+                if (!focusedWindowisSet) {
+                    focusedWindowisSet = true;
+                    wallPointer->setFocused(true);
+                }
+               
                 wallPointer->setArchivedState(false);
 
             }
