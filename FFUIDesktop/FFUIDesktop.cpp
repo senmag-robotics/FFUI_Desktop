@@ -105,7 +105,8 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 			}
 		}
 
-	
+		HWND currentForegroundHwnd = GetForegroundWindow();
+
 		//Critical Section minimised: 
 		//this locks both mutexes at the same time
 		std::scoped_lock doubleLock(objectsListMutex, WindowManager::getInstance().windowMutex);
@@ -113,8 +114,30 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 		if (!layers.empty()) {
 
 
+			// 1. BEFORE we overwrite, find out which window the HAPTIC thread currently has focused
+			HWND engineFocusedHwnd = NULL;
+			for (auto* oldWindow : WindowManager::getInstance().ActiveWindows) {
+				if (oldWindow->isFocused()) {
+					engineFocusedHwnd = oldWindow->getHandle();
+					break;
+				}
+			}
+
+			// 2. Apply that exact state to the new incoming windows
 			WindowManager::getInstance().ActiveWindows = tempActiveWindows;
+
+			for (auto* window : WindowManager::getInstance().ActiveWindows) {
+				// If the haptic thread had it focused a millisecond ago, keep it focused!
+				if (engineFocusedHwnd != NULL && window->getHandle() == engineFocusedHwnd) {
+					window->setFocused(true);
+				}
+				else {
+					window->setFocused(false);
+				}
+			}
+
 			WindowManager::getInstance().ArchivedWindows = tempArchivedWindows;
+
 			std::swap(layers[0].objects, newObjects);
 		}
 		
@@ -367,6 +390,7 @@ void FFUIDesktop::updateFrame() {
 				deviceLoc.orientation.j = deviceManager.devices[x].deviceStatus.orientation[2];
 				deviceLoc.orientation.k = deviceManager.devices[x].deviceStatus.orientation[3];
 
+			//	printf("%f z\n", deviceLoc.position.y);
 				Vector3 force = processForces(deviceLoc); //Interactive forces according to object type
 
 

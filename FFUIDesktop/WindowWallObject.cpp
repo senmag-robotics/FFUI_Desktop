@@ -1,5 +1,5 @@
 #include "WindowWallObject.h"
-
+#include "FFUIDesktop.h"
 WindowWallObject::WindowWallObject(WindowWallMeta wallMeta, Vector3 position, float thickness, float stiffness,
     float solidForceLimit, float height, float width)
     : FFUIObject({
@@ -29,31 +29,74 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
     bool withinY = std::abs(stylusPosition.y) < halfY;
     bool withinZ = std::abs(stylusPosition.z) < halfZ;
 
-    if (withinY
-        && withinX
-        && withinZ
-        ) {
+   // float roomDepth = 40.0f;
+    float frontWallEdge = halfY;
+    float backWallEdge = -halfY;
 
-        WindowManager::bringWindowToFront(this);
-        printf("inside \n");
-     		std::cout << objectMeta.customName << std::endl;
-        printf("done\n");
 
-   //     setFocused(true);
+    //if (!withinX || !withinZ) {
+    //    return force;
+    //}
 
+
+    if (stylusPosition.y < roomDepth && stylusPosition.y > frontWallEdge ) {
+      //  printf("%f\n", stylusPosition.y);
+
+        //We are in area of this tab, so we switch focus if we didn't already.
+          if (!this->isFocused()) {
+
+              WindowManager::bringWindowToFront(this);
+
+              printf("inside \n");
+              std::cout << objectMeta.customName << std::endl;
+              printf("done\n");
+          }
     }
+    else if (stylusPosition.y < frontWallEdge && stylusPosition.y > backWallEdge) {
     
+
+        float penetrationDepth = stylusPosition.y - frontWallEdge;
+        float reactionForce = -(penetrationDepth) * objectMeta.hapticSolidProperties.stiffness;
+        force.y = reactionForce;
+
+        if (force.y > objectMeta.hapticSolidProperties.solidForceLimit) force.y = objectMeta.hapticSolidProperties.solidForceLimit;
+        if (force.y < -objectMeta.hapticSolidProperties.solidForceLimit) force.y = -objectMeta.hapticSolidProperties.solidForceLimit;
+    }
+
+    //Back side
+
+  
+
+   // if (withinY
+   //     && withinX
+   //     && withinZ
+   //     ) {
+
+   //     WindowManager::bringWindowToFront(this);
+   //     printf("inside \n");
+   //  		std::cout << objectMeta.customName << std::endl;
+   //     printf("done\n");
+
+
+   //     float reactionForce = -(stylusPosition.z - halfZ) * objectMeta.hapticSolidProperties.stiffness;
+   //     force.y = reactionForce;
+
+   //     if (force.y > objectMeta.hapticSolidProperties.solidForceLimit) force.y = objectMeta.hapticSolidProperties.solidForceLimit;
+   //     if (force.y < -objectMeta.hapticSolidProperties.solidForceLimit) force.y = -objectMeta.hapticSolidProperties.solidForceLimit;
+   ////     setFocused(true);
+
+   // }
+   // 
 
 
     return force;
 }
 
 
+
 void WindowManager::bringWindowToFront(WindowWallObject* targetWindow) {
 
-    if (targetWindow->isFocused()) return;
 
-   // printf("Switching to this window \n");
 
     HWND hwnd = targetWindow->getWindowName().windowHandle;
 

@@ -24,6 +24,8 @@
 #define startZ	126.0f
 #define endZ	268.0f
 
+# define roomDepth 50
+
 
 #define DEVICE_WORKSPACE_OFFSETX	0
 #define DEVICE_WORKSPACE_OFFSETY	0

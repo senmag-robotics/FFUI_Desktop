@@ -2,7 +2,6 @@
 #include "FFUIDesktop.h"
 
 
-
 Vector3 ObjectFactory::screenToWorkspace(Vector2 screenPos, Vector2 screenSize, float zPosition, float workspaceX, float workspaceY)
 {
 
@@ -38,8 +37,8 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
         break;
 
     case UIElementType::Window:
-        props.stiffness = 0.0009f;
-        props.solidForceLimit = 0.0012;
+        props.stiffness = 0.001f;
+        props.solidForceLimit = 0.002;
 
     default: return props;
 
@@ -88,7 +87,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 {
     float z = 2000;
     std::vector<std::unique_ptr<FFUIObject>> theCreatedUIObjects;
-    bool focusedWindowisSet = false;
+
 
     for (ScannedUIElement elem : scannedElements) {
         HapticSolidProperties hapticPropsOfThisElemType = getHapticPropsOfType(elem.type);
@@ -98,6 +97,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
         //uIMeta.scale = Vector3(3, 3, z);
 
       
+
         uiMeta.hapticSolidProperties = hapticPropsOfThisElemType;
 
         switch (elem.type) {
@@ -112,10 +112,26 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 
             float currentNumOfActive = tempActiveWindows.size();
 
+   
 
-    
-            float zPos = endZ - 40
-                - 50 * currentNumOfActive;
+            int physicalSlot;
+
+            // Has this window been assigned a wall slot?
+            if (WindowManager::getInstance().windowWallSlotsMap.find(elem.hwnd) != WindowManager::getInstance().windowWallSlotsMap.end()) {
+                physicalSlot = WindowManager::getInstance().windowWallSlotsMap[elem.hwnd]; // put it back exactly where it was.
+            }
+            else {
+                // No, this is a brand new window. Give it the next empty room.
+                physicalSlot = WindowManager::getInstance().nextAvailableSlot;
+                WindowManager::getInstance().windowWallSlotsMap[elem.hwnd] = physicalSlot;
+                WindowManager::getInstance().nextAvailableSlot++;
+            }
+
+            // 3. Calculate depth EXCLUSIVELY using the permanent physicalSlot
+            float thickness = 10.0f;
+      
+
+            float zPos = endZ - roomDepth - ((roomDepth + thickness) * physicalSlot);
 
             Vector3 position = screenToWorkspace(
                 elem.center,
@@ -124,7 +140,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
                 DEVICE_WORKSPACE_X,
                 DEVICE_WORKSPACE_Y);
 
-            float thickness = 10.0f;
+
             float stiffness = hapticPropsOfThisElemType.stiffness;
             float solidForceLimit = hapticPropsOfThisElemType.solidForceLimit;
 
@@ -140,18 +156,15 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             WindowWallObject* wallPointer = static_cast<WindowWallObject*>(theCreatedUIObjects.back().get());
 
             if (currentNumOfActive >= 2) {
-                tempArchivedWindows.push_back(wallPointer);
                 wallPointer->setArchivedState(true);
+                tempArchivedWindows.push_back(wallPointer);
+
             }
             else {
-                tempActiveWindows.push_back(wallPointer);
-                //Default is false
-                if (!focusedWindowisSet) {
-                    focusedWindowisSet = true;
-                    wallPointer->setFocused(true);
-                }
-               
+
                 wallPointer->setArchivedState(false);
+
+                tempActiveWindows.push_back(wallPointer);
 
             }
             //std::cout << "---" << std::endl;

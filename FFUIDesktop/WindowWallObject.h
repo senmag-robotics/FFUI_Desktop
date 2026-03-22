@@ -5,6 +5,8 @@
 #include "FFUIDesktop_object.h"
 #include <thread>
 #include <mutex>
+#include <unordered_map>
+
 
 struct WindowWallMeta {
     HWND windowHandle;
@@ -12,6 +14,7 @@ struct WindowWallMeta {
     bool isArchived = false;
     bool isGrabbed = false;
     bool isFocused = false;
+  
 };
 
 
@@ -40,6 +43,11 @@ public:
         return windowMeta.isFocused;
     }
 
+    HWND getHandle() {
+        return windowMeta.windowHandle;
+    }
+
+
 private:
     WindowWallMeta windowMeta;
 
@@ -66,6 +74,9 @@ public:
 
     std::mutex windowMutex;
 
+    std::unordered_map<HWND, int> windowWallSlotsMap;
+    //Works as an ID of the positions, doesn't care what the size of map is
+    int nextAvailableSlot = 0;
 
 
     // Delete copy constructors to enforce the "Only One" rule
