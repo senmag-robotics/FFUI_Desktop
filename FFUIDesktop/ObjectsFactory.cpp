@@ -109,6 +109,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             windowMeta.windowTitle = elem.name;
             windowMeta.isArchived = false;
             windowMeta.isGrabbed = false;
+            int maxActive = WindowManager::getInstance().numOfActiveWindows;
 
             float currentNumOfActive = tempActiveWindows.size();
 
@@ -117,17 +118,16 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             int physicalSlot;
 
             // Has this window been assigned a wall slot?
-            if (WindowManager::getInstance().windowWallSlotsMap.find(elem.hwnd) != WindowManager::getInstance().windowWallSlotsMap.end()) {
-                physicalSlot = WindowManager::getInstance().windowWallSlotsMap[elem.hwnd]; // put it back exactly where it was.
+            auto& slotsMap = WindowManager::getInstance().windowWallSlotsMap;
+            if (slotsMap.find(elem.hwnd) != slotsMap.end()) {
+                physicalSlot = slotsMap[elem.hwnd];
             }
             else {
-                // No, this is a brand new window. Give it the next empty room.
                 physicalSlot = WindowManager::getInstance().nextAvailableSlot;
-                WindowManager::getInstance().windowWallSlotsMap[elem.hwnd] = physicalSlot;
+                slotsMap[elem.hwnd] = physicalSlot;
                 WindowManager::getInstance().nextAvailableSlot++;
             }
 
-            // 3. Calculate depth EXCLUSIVELY using the permanent physicalSlot
             float thickness = 10.0f;
       
 
@@ -147,7 +147,29 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             float height = elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y;
             float width = elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X;
 
-    
+            if (physicalSlot >= maxActive) {
+            
+                height = 40;
+                width = 350;
+                position =  Vector3(0.0f,
+                    125.0f - (height * (physicalSlot - maxActive)),
+                    135);
+
+                
+
+                thickness = 25;
+
+               //std::cout << "---" << std::endl;
+               //std::cout << std::string(windowMeta.windowTitle.begin(), windowMeta.windowTitle.end()) << std::endl;
+               //for (auto* window : WindowManager::getInstance().ArchivedWindows) {
+               //    _setmode(_fileno(stdout), _O_U16TEXT);
+
+               //    std::cout << window->getMeta().customName << std::endl;
+               //}
+                
+
+            }
+
           
             theCreatedUIObjects.emplace_back(std::make_unique<WindowWallObject>(windowMeta, position, thickness,
                 stiffness, solidForceLimit,
@@ -155,7 +177,8 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 
             WindowWallObject* wallPointer = static_cast<WindowWallObject*>(theCreatedUIObjects.back().get());
 
-            if (currentNumOfActive >= 2) {
+            //If active windows list is full, store the rest in archived list
+            if (currentNumOfActive >= maxActive) {
                 wallPointer->setArchivedState(true);
                 tempArchivedWindows.push_back(wallPointer);
 

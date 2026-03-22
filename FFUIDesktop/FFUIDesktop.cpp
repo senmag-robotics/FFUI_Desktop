@@ -390,7 +390,7 @@ void FFUIDesktop::updateFrame() {
 				deviceLoc.orientation.j = deviceManager.devices[x].deviceStatus.orientation[2];
 				deviceLoc.orientation.k = deviceManager.devices[x].deviceStatus.orientation[3];
 
-			//	printf("%f z\n", deviceLoc.position.y);
+				//printf("%f z\n", deviceLoc.position.x);
 				Vector3 force = processForces(deviceLoc); //Interactive forces according to object type
 
 

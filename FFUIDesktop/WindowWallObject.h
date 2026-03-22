@@ -74,6 +74,8 @@ public:
 
     std::mutex windowMutex;
 
+    int numOfActiveWindows = 2;
+
     std::unordered_map<HWND, int> windowWallSlotsMap;
     //Works as an ID of the positions, doesn't care what the size of map is
     int nextAvailableSlot = 0;
