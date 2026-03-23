@@ -42,6 +42,39 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
             std::cout << objectMeta.customName << std::endl;
             printf("done\n");
 
+           
+            const Vector3 rectangleCenter(0, 0, 0);
+
+            Vector3 toCenter = rectangleCenter - stylusPosition;
+
+            float distance = toCenter.length();
+
+
+    
+            float maxForce = 0.001;
+
+            // Vector3 dir = toCenter / distance;
+
+
+            float minDimension = (std::min)(objectMeta.scale.x, objectMeta.scale.y);
+
+
+            float stabilityFactor = (std::max)(minDimension, 15.0f);
+
+            // Calculate Effective Stiffness
+            // We ensure we don't exceed the stiffness of a 'stabilityFactor' sized button
+            float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 13) / stabilityFactor;
+
+
+            force = toCenter * (0.0005);
+
+
+            force.x = 0;
+
+            if (force.length() > maxForce) {
+                force *= maxForce / force.length();
+            }
+
         }
     
     
@@ -53,6 +86,8 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
 
               //We are in area of this tab, so we switch focus if we didn't already.
             if (!isFocused()) {
+
+
 
                 WindowManager::bringWindowToFront(this);
 

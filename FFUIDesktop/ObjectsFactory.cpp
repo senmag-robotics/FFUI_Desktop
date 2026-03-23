@@ -38,7 +38,7 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
 
     case UIElementType::Window:
         props.stiffness = 0.001f;
-        props.solidForceLimit = 0.002;
+        props.solidForceLimit = 0.006;
 
     default: return props;
 
@@ -85,7 +85,6 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
     std::vector<WindowWallObject*>& tempActiveWindows,    
     std::vector<WindowWallObject*>& tempArchivedWindows)
 {
-    float z = 2000;
     std::vector<std::unique_ptr<FFUIObject>> theCreatedUIObjects;
 
 
@@ -204,17 +203,20 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 
         default:
 
+            //The z position and depth has been calculated such that the button objects
+            //Are placed in the region of the whole space except the 20 units at the very front, 
+            //As that space is for the archived windows list.
             uiMeta.globalPosition = screenToWorkspace(
                 elem.center,
                 config.screenSize,
-                0, //zPosition
+                215, //zPosition
                 DEVICE_WORKSPACE_X,
                 DEVICE_WORKSPACE_Y);
 
             uiMeta.scale = Vector3(
                 elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X,
                 elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y,
-                z);  // Z depth for haptic interaction
+                78);  // Z depth for haptic interaction
 
 
             uiMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
