@@ -113,8 +113,8 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 		if (!layers.empty()) {
 
-
-			// 1. BEFORE we overwrite, find out which window the HAPTIC thread currently has focused
+			//Find out which window had focus in last scan
+			
 			HWND engineFocusedHwnd = NULL;
 			for (auto* oldWindow : WindowManager::getInstance().ActiveWindows) {
 				if (oldWindow->isFocused()) {
@@ -123,11 +123,10 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 				}
 			}
 
-			// 2. Apply that exact state to the new incoming windows
+			// Maintaing the same focused window in the updated list
 			WindowManager::getInstance().ActiveWindows = tempActiveWindows;
 
 			for (auto* window : WindowManager::getInstance().ActiveWindows) {
-				// If the haptic thread had it focused a millisecond ago, keep it focused!
 				if (engineFocusedHwnd != NULL && window->getHandle() == engineFocusedHwnd) {
 					window->setFocused(true);
 				}
@@ -142,8 +141,6 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 		}
 		
 	
-		// Prevent CPU hogging
-		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
 
