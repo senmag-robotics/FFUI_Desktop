@@ -110,7 +110,6 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             windowMeta.isGrabbed = false;
             int maxActive = WindowManager::getInstance().numOfActiveWindows;
 
-            float currentNumOfActive = tempActiveWindows.size();
 
    
 
@@ -124,7 +123,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             else {
                 physicalSlot = WindowManager::getInstance().nextAvailableSlot;
                 slotsMap[elem.hwnd] = physicalSlot;
-                WindowManager::getInstance().nextAvailableSlot++;
+                WindowManager::getInstance().increasenNextAvailableSlot();
             }
 
             float thickness = 10.0f;
@@ -158,7 +157,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 
                 thickness = 25;
 
-               //std::cout << "---" << std::endl;
+              // std::cout << "---" << std::endl;
                //std::cout << std::string(windowMeta.windowTitle.begin(), windowMeta.windowTitle.end()) << std::endl;
                //for (auto* window : WindowManager::getInstance().ArchivedWindows) {
                //    _setmode(_fileno(stdout), _O_U16TEXT);
@@ -177,15 +176,13 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             WindowWallObject* wallPointer = static_cast<WindowWallObject*>(theCreatedUIObjects.back().get());
 
             //If active windows list is full, store the rest in archived list
-            if (currentNumOfActive >= maxActive) {
+            if (physicalSlot >= maxActive) {
                 wallPointer->setArchivedState(true);
                 tempArchivedWindows.push_back(wallPointer);
 
             }
-            else {
-
+            else{
                 wallPointer->setArchivedState(false);
-
                 tempActiveWindows.push_back(wallPointer);
 
             }

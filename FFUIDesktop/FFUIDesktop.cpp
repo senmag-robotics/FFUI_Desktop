@@ -235,13 +235,24 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 		if (minDistance < closestObject->getMeta().scale.x && minDistance < closestObject->getMeta().scale.y) {
 
 
+			// Attempt to cast the generic object into a Window object
+			WindowWallObject* wallPointer = dynamic_cast<WindowWallObject*>(closestObject);
+
+			if (wallPointer != nullptr ) {
+
+				printf("inside \n");
+				std::cout << closestObject->getMeta().customName << std::endl;
+				printf("done\n");
+			
+			}
+
 			//Remove this line to enable feature
 			buttonClicked = false;
 			if (buttonClicked) {
 
 				stylusSnapped = !stylusSnapped;
 
-				std::cout << "is: " << stylusSnapped << std::endl;
+				//std::cout << "is: " << stylusSnapped << std::endl;
 
 				closestObject->setSnapped(stylusSnapped);
 

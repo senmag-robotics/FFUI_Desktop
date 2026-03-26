@@ -88,7 +88,7 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
             if (!isFocused()) {
 
 
-
+                
                 WindowManager::bringWindowToFront(this);
 
                 //printf("inside \n");
@@ -175,6 +175,14 @@ void WindowManager::bringWindowToFront(WindowWallObject* targetWindow) {
         window->setFocused(false);
     }
     targetWindow->setFocused(true);
+
+
+}
+
+void WindowManager::moveArchviedToActive(WindowWallObject* mainWindow) {
+
+    if (!mainWindow->isArchived()) return;
+
 
 
 }

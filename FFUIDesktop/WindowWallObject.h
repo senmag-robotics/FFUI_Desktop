@@ -68,6 +68,12 @@ public:
     static void bringWindowToFront(WindowWallObject* targetWindow);
 
 
+    static void moveArchviedToActive(WindowWallObject* mainWindow);
+    void increasenNextAvailableSlot() {
+        nextAvailableSlot++;
+    }
+
+
     std::vector<WindowWallObject*> ArchivedWindows;
 
     std::vector<WindowWallObject*> ActiveWindows;
@@ -80,6 +86,7 @@ public:
     //Works as an ID of the positions, doesn't care what the size of map is
     int nextAvailableSlot = 0;
 
+    
 
     // Delete copy constructors to enforce the "Only One" rule
     WindowManager(WindowManager const&) = delete;
