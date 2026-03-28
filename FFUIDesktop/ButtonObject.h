@@ -1,10 +1,13 @@
 #pragma once
-#include "FFUIDesktop_object.h"
+
+// Include the HapticObjects directory in the search paths
+#include "HapticObjects/FFUIDesktop_object.h"
+
 #include "WindowScanner.h"
 
 class ButtonObject : public FFUIObject {
 public:
-    ButtonObject(FFUIObject_UIMeta meta);
+    ButtonObject(FFUIObject_Meta meta);
     Vector3 calculateInteractionForce(Location localLoc) override;
 
 private:

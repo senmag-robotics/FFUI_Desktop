@@ -69,7 +69,7 @@ FFUIObject_Meta ObjectFactory::createDemoObject() {
 }
 
 
-bool dublicatePositionsExist(std::vector<std::unique_ptr<FFUIObject>>& alreadyCreatedObjects, FFUIObject_UIMeta& objectMeta) {
+bool dublicatePositionsExist(std::vector<std::unique_ptr<FFUIObject>>& alreadyCreatedObjects, FFUIObject_Meta& objectMeta) {
     for (const auto& object : alreadyCreatedObjects) {
         float diognalOfWorkspace = std::sqrt(DEVICE_WORKSPACE_X * DEVICE_WORKSPACE_X
             + DEVICE_WORKSPACE_Y * DEVICE_WORKSPACE_Y);
@@ -90,14 +90,14 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 
     for (ScannedUIElement elem : scannedElements) {
         HapticSolidProperties hapticPropsOfThisElemType = getHapticPropsOfType(elem.type);
-        FFUIObject_UIMeta uiMeta{};
-        uiMeta.accessibleName = elem.name;
-        uiMeta.uiType = elem.type;
+        FFUIObject_Meta objectMeta{};
+        objectMeta.customName = std::string(elem.name.begin(), elem.name.end());
+        objectMeta.uiType = elem.type;
         //uIMeta.scale = Vector3(3, 3, z);
 
       
 
-        uiMeta.hapticSolidProperties = hapticPropsOfThisElemType;
+        objectMeta.hapticSolidProperties = hapticPropsOfThisElemType;
 
         switch (elem.type) {
         
@@ -108,6 +108,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             windowMeta.windowTitle = elem.name;
             windowMeta.isArchived = false;
             windowMeta.isGrabbed = false;
+            
             int maxActive = WindowManager::getInstance().numOfActiveWindows;
 
 
@@ -203,40 +204,40 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             //The z position and depth has been calculated such that the button objects
             //Are placed in the region of the whole space except the 20 units at the very front, 
             //As that space is for the archived windows list.
-            uiMeta.globalPosition = screenToWorkspace(
+            objectMeta.globalPosition = screenToWorkspace(
                 elem.center,
                 config.screenSize,
                 215, //zPosition
                 DEVICE_WORKSPACE_X,
                 DEVICE_WORKSPACE_Y);
 
-            uiMeta.scale = Vector3(
+            objectMeta.scale = Vector3(
                 elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X,
                 elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y,
                 78);  // Z depth for haptic interaction
 
 
-            uiMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
+            objectMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
 
-            uiMeta.snappedToThis = false;
+            objectMeta.snappedToThis = false;
 
             if (FFUIDesktop::currentSnapAnchor.isTracking) {
 
-                float dist = (uiMeta.globalPosition - FFUIDesktop::currentSnapAnchor.originalPosition).length();
+                float dist = (objectMeta.globalPosition - FFUIDesktop::currentSnapAnchor.originalPosition).length();
 
-                if (uiMeta.accessibleName == FFUIDesktop::currentSnapAnchor.objectWindowsName) {
+                if (objectMeta.customName == FFUIDesktop::currentSnapAnchor.objectWindowsName) {
                     //   printf("Snapped to this\n");
-                    uiMeta.snappedToThis = true;
+                    objectMeta.snappedToThis = true;
 
-                    FFUIDesktop::currentSnapAnchor.originalPosition = uiMeta.globalPosition;
+                    FFUIDesktop::currentSnapAnchor.originalPosition = objectMeta.globalPosition;
                 }
             }
 
 
 
 
-            if (!dublicatePositionsExist(theCreatedUIObjects, uiMeta))
-                theCreatedUIObjects.emplace_back(std::make_unique<ButtonObject>(uiMeta));
+            if (!dublicatePositionsExist(theCreatedUIObjects, objectMeta))
+                theCreatedUIObjects.emplace_back(std::make_unique<ButtonObject>(objectMeta));
             //uIMeta.globalPosition = screenToWorkspace();
         
         }

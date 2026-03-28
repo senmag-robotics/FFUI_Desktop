@@ -8,7 +8,8 @@ WindowWallObject::WindowWallObject(WindowWallMeta wallMeta, Vector3 position, fl
         Quaternion().setFromEuler(0, 0, 90),                                // orientation
         {solidForceLimit, stiffness, 0.0f, 0.0f, 0.0f},                  // hapticSolidProperties
         std::string(wallMeta.windowTitle.begin(), wallMeta.windowTitle.end()), // customName (wstring to string conversion)
-        false                                                    // snappedToThis
+        false,                                                    // snappedToThis
+        UIElementType::Window               //uiType
         }),
     windowMeta(wallMeta) // Initialize the UI properties
 
@@ -38,9 +39,9 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
     if (isArchived()) {
 
         if (withinX && withinY && withinZ) {
-            printf("inside \n");
-            std::cout << objectMeta.customName << std::endl;
-            printf("done\n");
+            //printf("inside \n");
+            //std::cout << objectMeta.customName << std::endl;
+            //printf("done\n");
 
            
             const Vector3 rectangleCenter(0, 0, 0);

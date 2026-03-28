@@ -36,7 +36,7 @@
 
 struct SnapAnchor {
 	bool isTracking = false;
-	std::wstring objectWindowsName;
+	std::string objectWindowsName;
 	Vector3 originalPosition = Vector3(0, 0, 0);
 };
 

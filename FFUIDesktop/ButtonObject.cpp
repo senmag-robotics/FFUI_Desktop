@@ -2,9 +2,10 @@
 #include <cmath>
 #include "ObjectsFactory.h"
 
-ButtonObject::ButtonObject(FFUIObject_UIMeta meta) : FFUIObject(meta) {
-    this->uiMeta = meta;
+ButtonObject::ButtonObject(FFUIObject_Meta meta) : FFUIObject(meta) {
+
 	//objectInit();
+    // 
 	//Should I add a vibration effect for the button? Maybe a short pulse when the button is pressed?
 
 

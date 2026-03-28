@@ -115,19 +115,19 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 			//Find out which window had focus in last scan
 			
-			HWND engineFocusedHwnd = NULL;
+			HWND lastFocusedWindowHandle = NULL;
 			for (auto* oldWindow : WindowManager::getInstance().ActiveWindows) {
 				if (oldWindow->isFocused()) {
-					engineFocusedHwnd = oldWindow->getHandle();
+					lastFocusedWindowHandle = oldWindow->getHandle();
 					break;
 				}
 			}
 
-			// Maintaing the same focused window in the updated list
+			// Maintain the same focused window in the updated list
 			WindowManager::getInstance().ActiveWindows = tempActiveWindows;
 
 			for (auto* window : WindowManager::getInstance().ActiveWindows) {
-				if (engineFocusedHwnd != NULL && window->getHandle() == engineFocusedHwnd) {
+				if (lastFocusedWindowHandle != NULL && window->getHandle() == lastFocusedWindowHandle) {
 					window->setFocused(true);
 				}
 				else {
@@ -196,27 +196,33 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 
 Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool buttonClicked) {
 	Vector3 snappingForce(0, 0, 0);
-
 	std::lock_guard<std::mutex> lock(objectsListMutex);
+
 
 	if (layers.empty() || layers[0].objects.empty()) return snappingForce;
 
 	FFUIObject* closestObject = nullptr;
 
-	float minDistance = (layers[0].objects[0]->getMeta().globalPosition -
-		Vector3(cursorPos.x, cursorPos.y, 0)).length();
+	float minDistance = (std::numeric_limits<float>::max)();
 	
 	for (const auto& object : layers[0].objects) {
-		//We skip if this object is a boundary (has "Boundary" in its name)
-		if (std::string(object->getMeta().customName).find("Boundary") != std::string::npos)
+
+
+		//We skip if this object is a boundary (has "Boundary" in its name) or a window
+		if (std::string(object->getMeta().customName).find("Boundary") != std::string::npos
+			|| object->getMeta().uiType == UIElementType::Window)
 			continue;
 
+
+
 		Vector3 objectPos = object->getMeta().globalPosition;
-		Vector3 cursorPos3D(cursorPos.x, cursorPos.y, 0);
-		float distanceToThisObject = (objectPos - cursorPos3D).length();
+		float dx = objectPos.x - cursorPos.x;
+		float dy = objectPos.y - cursorPos.y;
+		float distance2DToThisButton = std::sqrt(dx * dx + dy * dy);
+
 		
-		if (distanceToThisObject < minDistance) {
-			minDistance = distanceToThisObject;
+		if (distance2DToThisButton < minDistance) {
+			minDistance = distance2DToThisButton;
 			closestObject = object.get();
 		}
 
@@ -229,13 +235,17 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 		snappingForce = closestObject->calculateSnappingForceToThis(deviceLoc);
 
 
-		if (minDistance < closestObject->getMeta().scale.x && minDistance < closestObject->getMeta().scale.y) {
+		float halfX = closestObject->getMeta().scale.x * 0.5f;
+		float halfY = closestObject->getMeta().scale.y * 0.5f;	
+		float halfZ = closestObject->getMeta().scale.z * 0.5f;
+
+		if (minDistance < halfX && minDistance < halfY) {
 
 
 			// Attempt to cast the generic object into a Window object
 			WindowWallObject* wallPointer = dynamic_cast<WindowWallObject*>(closestObject);
 
-			if (wallPointer != nullptr ) {
+			if (closestObject->getMeta().uiType == UIElementType::Window ) {
 
 				printf("inside \n");
 				std::cout << closestObject->getMeta().customName << std::endl;
@@ -254,8 +264,8 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 				closestObject->setSnapped(stylusSnapped);
 
 				currentSnapAnchor.isTracking = stylusSnapped;
-				currentSnapAnchor.objectWindowsName = closestObject->getUIMeta().accessibleName;
-				currentSnapAnchor.originalPosition = closestObject->getUIMeta().globalPosition;
+				currentSnapAnchor.objectWindowsName = closestObject->getMeta().customName;
+				currentSnapAnchor.originalPosition = closestObject->getMeta().globalPosition;
 
 			}
 

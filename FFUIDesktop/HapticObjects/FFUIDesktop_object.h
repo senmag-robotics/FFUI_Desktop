@@ -39,19 +39,16 @@ typedef struct {
 	Vector3		scale;
 	Quaternion	orientation;
 	HapticSolidProperties	hapticSolidProperties;
-	std::string		customName;
+	std::string	customName;
 	bool snappedToThis;
+	UIElementType uiType;
+
 	
 }FFUIObject_Meta;
 
 
 
-struct FFUIObject_UIMeta : public FFUIObject_Meta {
-	UIElementType       uiType;
-	std::wstring        accessibleName;
-	HWND                linkedHwnd;
-	RECT                screenRect;
-};
+
 
 
 class FFUIObject {
@@ -64,9 +61,7 @@ public:
 	const FFUIObject_Meta& getMeta() const {
 		return objectMeta;
 	}
-	const FFUIObject_UIMeta& getUIMeta() const {
-		return uiMeta;
-	}
+
 	void setSnapped(bool state) {
 		 objectMeta.snappedToThis = state;
 
@@ -81,7 +76,6 @@ public:
 protected:
 
 	FFUIObject_Meta	objectMeta;
-	FFUIObject_UIMeta uiMeta;
 
 
 private:
