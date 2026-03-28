@@ -195,7 +195,7 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 }
 //calculates the force to the closest object (that is not a boundary) to the cursor 
 
-Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool buttonClicked) {
+Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool button3Clicked, bool button4Clicked) {
 	Vector3 snappingForce(0, 0, 0);
 	std::lock_guard<std::mutex> lock(objectsListMutex);
 
@@ -238,15 +238,15 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 
 		//To enable the feature of snapping inplace of an object when side button is clicked. Move this line
 		//Inside the else of the next if, and remove "buttonClicked = false"
-		snappingForce = closestObject->calculateSnappingForceToThis(deviceLoc);
 
 
 		float halfX = closestObject->getMeta().scale.x * 0.5f;
 		float halfY = closestObject->getMeta().scale.y * 0.5f;	
 		float halfZ = closestObject->getMeta().scale.z * 0.5f;
 
-		if (minDistance < halfX && minDistance < halfY) {
+		if (std::abs(minDistance) < halfX  && std::abs(minDistance )< halfY) {
 
+			printf("inside\n");
 
 			// Attempt to cast the generic object into a Window object
 			WindowWallObject* wallPointer = dynamic_cast<WindowWallObject*>(closestObject);
@@ -259,9 +259,9 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 			
 			}
 
-			//Remove this line to enable feature
-			buttonClicked = false;
-			if (buttonClicked) {
+			//Remove this line to enable feature (Doesn't work currently)
+			button3Clicked = false;
+			if (button3Clicked) {
 
 				stylusSnapped = !stylusSnapped;
 
@@ -282,6 +282,7 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 		}
 		else {
 			//std::wcout << "Mystery object: " << closestObject->getUIMeta(). << std::endl;
+			snappingForce = closestObject->calculateSnappingForceToThis(deviceLoc);
 
 
 		}
@@ -351,14 +352,21 @@ void FFUIDesktop::updateFrame() {
 					}
 				}
 
+
 				//middle click
 				//Released
 				if ((currentInput >> 4 & 0x1) == 1 && (stylusState_previous >> 4 & 0x1) == 0) {
 					SendMouseInput(MOUSEEVENTF_MIDDLEUP);
 				}
+
+				bool button4Clicked = false;
+
 				//Pressed
 				if ((currentInput >> 4 & 0x1) == 0 && (stylusState_previous >> 4 & 0x1) == 1) {
 					SendMouseInput(MOUSEEVENTF_MIDDLEDOWN);
+					button4Clicked = true;
+
+					printf("middle\n");
 				}
 
 
@@ -388,13 +396,13 @@ void FFUIDesktop::updateFrame() {
 
 					//SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
 				}
-				bool buttonClicked = false;
+				bool button3Clicked = false;
 				//side button
 				//Initial press
 				if ((currentInput >> 7 & 0x1) == 0 && (stylusState_previous >> 7 & 0x1) == 1) {
 				//	std::cout << "flag1: " << stylusSnapped << std::endl;
 
-					buttonClicked = true;
+					button3Clicked = true;
 					//SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
 				}
 			
@@ -423,7 +431,7 @@ void FFUIDesktop::updateFrame() {
 				if ((currentInput >> 7 & 0x1) == 0) {
 
 			
-					force = calculateForceToClosestObject(deviceLoc, buttonClicked);
+					force = calculateForceToClosestObject(deviceLoc, button3Clicked, button4Clicked);
 				}
 				
 

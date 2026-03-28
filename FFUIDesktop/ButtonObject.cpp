@@ -93,9 +93,10 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
 
     }
     
-
+    //This anchoring feature doesn't work currently due to buttons actually
+    //having a specific z range they exist in (because of the widnows setup). 
         if (objectMeta.snappedToThis ) {
-
+            //printf("anchored to this \n");
             float minDimension = (std::min)(objectMeta.scale.x, objectMeta.scale.y);
 
 
