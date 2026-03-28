@@ -7,6 +7,7 @@
 #include <mutex>
 #include <unordered_map>
 
+#include <atomic>
 
 struct WindowWallMeta {
     HWND windowHandle;
@@ -85,6 +86,10 @@ public:
     std::unordered_map<HWND, int> windowWallSlotsMap;
     //Works as an ID of the positions, doesn't care what the size of map is
     int nextAvailableSlot = 0;
+
+    
+    std::atomic<bool> isUserGrabbingWindow{ false };
+
 
     
 

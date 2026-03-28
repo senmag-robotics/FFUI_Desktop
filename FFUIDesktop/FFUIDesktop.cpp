@@ -41,17 +41,19 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
  void FFUIDesktop::initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config) {
 	while (!stoken.stop_requested()) {
 
+		
+
 		//Temporary active and archived windows lists to minimize critical section
 		//In the critical section we fill the content of the real ones with the temp ones.
 		std::vector<WindowWallObject*> tempActiveWindows;
 		std::vector<WindowWallObject*> tempArchivedWindows;
 
 		std::vector<std::unique_ptr<FFUIObject>> newObjects;
-		
+
 		addBoundaryPlanes(newObjects);
 
 		WindowScanner scanner;
-		if (scanner.initialize()) {
+		if (scanner.initialize() && WindowManager::getInstance().isUserGrabbingWindow == false) {
 			std::vector<UIElementType> typesToScan = { UIElementType::Button,
 				UIElementType::ListItem,
 				UIElementType::MenuItem,
@@ -105,7 +107,6 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 			}
 		}
 
-		HWND currentForegroundHwnd = GetForegroundWindow();
 
 		//Critical Section minimised: 
 		//this locks both mutexes at the same time
@@ -195,7 +196,7 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 }
 //calculates the force to the closest object (that is not a boundary) to the cursor 
 
-Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool button3Clicked, bool button4Clicked) {
+Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool button3Clicked) {
 	Vector3 snappingForce(0, 0, 0);
 	std::lock_guard<std::mutex> lock(objectsListMutex);
 
@@ -214,7 +215,8 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 		isActiveWindow = object->getMeta().uiType == UIElementType::Window && windowPointer->isArchived() == false;
 
 		bool isScreenBoundary = object->getMeta().uiType == UIElementType::ScreenBoundary;
-		//We skip if this object is a boundary or an active window, skip, we don't want to attract towards them ever.
+		//We skip if this object is a boundary or an active window, skip;
+		//as we don't want to attract towards them ever.
 		if (isScreenBoundary || isActiveWindow)
 			continue;
 
@@ -236,8 +238,11 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 	}
 	if (closestObject != nullptr) {
 
-		//To enable the feature of snapping inplace of an object when side button is clicked. Move this line
-		//Inside the else of the next if, and remove "buttonClicked = false"
+		//To enable the feature of snapping inplace of an object when side button is clicked.
+		//Move this line inside the else of the next if, and remove "buttonClicked = false" 
+		//(Doesn't work currently so don't change anything)
+
+		snappingForce = closestObject->calculateSnappingForceToThis(deviceLoc);
 
 
 		float halfX = closestObject->getMeta().scale.x * 0.5f;
@@ -282,7 +287,6 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 		}
 		else {
 			//std::wcout << "Mystery object: " << closestObject->getUIMeta(). << std::endl;
-			snappingForce = closestObject->calculateSnappingForceToThis(deviceLoc);
 
 
 		}
@@ -357,14 +361,16 @@ void FFUIDesktop::updateFrame() {
 				//Released
 				if ((currentInput >> 4 & 0x1) == 1 && (stylusState_previous >> 4 & 0x1) == 0) {
 					SendMouseInput(MOUSEEVENTF_MIDDLEUP);
+
+					WindowManager::getInstance().isUserGrabbingWindow = false;
+
 				}
 
-				bool button4Clicked = false;
 
 				//Pressed
 				if ((currentInput >> 4 & 0x1) == 0 && (stylusState_previous >> 4 & 0x1) == 1) {
 					SendMouseInput(MOUSEEVENTF_MIDDLEDOWN);
-					button4Clicked = true;
+					WindowManager::getInstance().isUserGrabbingWindow = true;
 
 					printf("middle\n");
 				}
@@ -431,7 +437,7 @@ void FFUIDesktop::updateFrame() {
 				if ((currentInput >> 7 & 0x1) == 0) {
 
 			
-					force = calculateForceToClosestObject(deviceLoc, button3Clicked, button4Clicked);
+					force = calculateForceToClosestObject(deviceLoc, button3Clicked);
 				}
 				
 

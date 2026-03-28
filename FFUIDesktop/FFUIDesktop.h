@@ -88,7 +88,7 @@ private:
 	bool stylusSnapped = false;
 
 	Vector2 cursorPos;
-	Vector3 calculateForceToClosestObject(Location deviceLoc,  bool buttonClicked, bool button4Clicked);
+	Vector3 calculateForceToClosestObject(Location deviceLoc,  bool buttonClicked);
 
 	Vector2 cusrsorScale;		//the scale factor between device workspace and digital workspace
 };
