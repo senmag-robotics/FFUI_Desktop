@@ -47,10 +47,6 @@ typedef struct {
 }FFUIObject_Meta;
 
 
-
-
-
-
 class FFUIObject {
 public:
 	FFUIObject(FFUIObject_Meta meta);

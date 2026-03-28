@@ -152,6 +152,7 @@ void FFUIDesktop::addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& ta
 	FFUIObject_Meta meta{};
 	meta.scale = Vector3(2000, 0, 2000);
 	meta.hapticSolidProperties = props;
+	meta.uiType = UIElementType::ScreenBoundary;
 
 	// Front
 	meta.globalPosition = Vector3(0, 0, 130);
@@ -207,10 +208,14 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 	
 	for (const auto& object : layers[0].objects) {
 
+		WindowWallObject* windowPointer = dynamic_cast<WindowWallObject*>(object.get());
+		bool isActiveWindow = false; 
+		if(windowPointer != nullptr)
+		isActiveWindow = object->getMeta().uiType == UIElementType::Window && windowPointer->isArchived() == false;
 
-		//We skip if this object is a boundary (has "Boundary" in its name) or a window
-		if (std::string(object->getMeta().customName).find("Boundary") != std::string::npos
-			|| object->getMeta().uiType == UIElementType::Window)
+		bool isScreenBoundary = object->getMeta().uiType == UIElementType::ScreenBoundary;
+		//We skip if this object is a boundary or an active window, skip, we don't want to attract towards them ever.
+		if (isScreenBoundary || isActiveWindow)
 			continue;
 
 
@@ -220,9 +225,10 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 		float dy = objectPos.y - cursorPos.y;
 		float distance2DToThisButton = std::sqrt(dx * dx + dy * dy);
 
+		float distanceToThis = (objectPos - deviceLoc.position).length();
 		
-		if (distance2DToThisButton < minDistance) {
-			minDistance = distance2DToThisButton;
+		if (distanceToThis < minDistance) {
+			minDistance = distanceToThis;
 			closestObject = object.get();
 		}
 

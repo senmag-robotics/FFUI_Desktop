@@ -49,6 +49,9 @@ Vector3 FFUIObject::calculateSnappingForceToThis(Location stylusLocation)
 	if (snappingForce.length() > maxSnappingForce) {
 		snappingForce = snappingForce.normalized() * maxSnappingForce;
 	}
+
+	if (objectMeta.uiType == UIElementType::Window)
+		snappingForce.x = 0;
 	return snappingForce;
 }
 

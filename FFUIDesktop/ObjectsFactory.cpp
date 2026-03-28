@@ -149,7 +149,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             if (physicalSlot >= maxActive) {
             
                 height = 40;
-                width = 350;
+                width = DEVICE_WORKSPACE_X;
                 position =  Vector3(0.0f,
                     125.0f - (height * (physicalSlot - maxActive)),
                     135);

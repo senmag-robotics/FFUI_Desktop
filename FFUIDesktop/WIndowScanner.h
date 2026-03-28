@@ -11,6 +11,7 @@
 
 // Types of UI elements we can detect
 enum class UIElementType {
+    ScreenBoundary,
     Unknown,
     DesktopIcon,
     TaskbarIcon,
