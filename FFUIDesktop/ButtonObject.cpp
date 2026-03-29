@@ -2,13 +2,12 @@
 #include <cmath>
 #include "ObjectsFactory.h"
 
+
 ButtonObject::ButtonObject(FFUIObject_Meta meta) : FFUIObject(meta) {
 
 	//objectInit();
     // 
 	//Should I add a vibration effect for the button? Maybe a short pulse when the button is pressed?
-
-
 }
 
 Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
@@ -54,28 +53,16 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
         float distance = toCenter.length();
 
         force = toCenter * objectMeta.hapticSolidProperties.stiffness * 5;
-      //  if (!std::isfinite(distance) ) {
-      //      return force;
-      //  }
 
-      //  Vector3 dir = toCenter / distance;
-      //  float attractionMagnitude = objectMeta.hapticSolidProperties.stiffness * distance * 10;
-
-      //  //force = dir * attractionMagnitude;
         float maxForce = objectMeta.hapticSolidProperties.solidForceLimit;
-
-       // Vector3 dir = toCenter / distance;
-
     
         float minDimension = (std::min)(objectMeta.scale.x, objectMeta.scale.y);
 
-     
         float stabilityFactor = (std::max)(minDimension, 15.0f);
 
         // Calculate Effective Stiffness
         // We ensure we don't exceed the stiffness of a 'stabilityFactor' sized button
         float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 13) / stabilityFactor;
-
 
         force = toCenter * (effectiveStiffness);
         force.z = 0;
@@ -86,11 +73,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
             force *= maxForce / force.length();
         }
 
-
-       // std::cout << "flag1: " << objectMeta.snappedToThis << std::endl;
-
-     
-
+ 
     }
     
     //This anchoring feature doesn't work currently due to buttons actually

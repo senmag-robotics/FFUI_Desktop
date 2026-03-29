@@ -12,6 +12,6 @@ public:
 
 private:
 
-    float attractionRadius = 0.0f;  // Distance at which attraction starts
+    float attractionRadius = 0.0f;  // Distance at which attraction starts (starting from edge)
     float attractionStrength = 0.002f;  // Force magnitude
 };

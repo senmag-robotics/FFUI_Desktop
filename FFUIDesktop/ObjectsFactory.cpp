@@ -1,6 +1,6 @@
 #include "ObjectsFactory.h"
 #include "FFUIDesktop.h"
-
+#include "GravityWellObject.h"
 
 Vector3 ObjectFactory::screenToWorkspace(Vector2 screenPos, Vector2 screenSize, float zPosition, float workspaceX, float workspaceY)
 {
@@ -40,6 +40,11 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
         props.stiffness = 0.001f;
         props.solidForceLimit = 0.006;
 
+        break;
+    case UIElementType::GravityWell:
+        props.stiffness = 0.001f;
+        props.solidForceLimit = 0.006;
+
     default: return props;
 
     }
@@ -47,6 +52,28 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
 
 }
 
+
+std::unique_ptr<FFUIObject> ObjectFactory::createGravityWellAtWindowPosition(WindowWallObject* targetWindow) {
+
+    HapticSolidProperties props = getHapticPropsOfType(UIElementType::GravityWell);
+    //props.solidForceLimit = 0.0002f;
+
+    //get the window position
+
+    FFUIObject_Meta buttonMeta{};
+    buttonMeta.hapticSolidProperties = props;
+
+    //We set the x and y of the well to be the center of the workspace, and the z position to be target window's.
+    float windowZPosition = targetWindow->getMeta().globalPosition.z;
+    Vector3 slotPosition = Vector3(0, 0, windowZPosition);
+
+    buttonMeta.globalPosition = slotPosition;
+    buttonMeta.scale = Vector3(70, 70, 10);
+    buttonMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
+    buttonMeta.customName = targetWindow->getMeta().customName + " " + "place holder";
+
+    return std::make_unique<GravityWellObject>(buttonMeta);
+}
 
 FFUIObject_Meta ObjectFactory::createDemoObject() {
 

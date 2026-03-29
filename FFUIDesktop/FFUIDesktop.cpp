@@ -41,19 +41,54 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
  void FFUIDesktop::initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config) {
 	while (!stoken.stop_requested()) {
 
-		
+		std::vector<std::unique_ptr<FFUIObject>> newObjects;
+
+		addBoundaryPlanes(newObjects);
+
+		static bool hasGeneratedPlaceholders = false;
+		if (WindowManager::getInstance().isUserGrabbingWindow.load()) {
+			// Only generate and swap the placeholders ONCE per grab because it will crash if it swaps a second time
+			// (since activeWindows list will have dead pointers)
+			if (!hasGeneratedPlaceholders) {
+				std::vector<std::unique_ptr<FFUIObject>> newObjects;
+				addBoundaryPlanes(newObjects);
+
+				std::scoped_lock doubleLock(objectsListMutex, WindowManager::getInstance().windowMutex);
+
+				// Read the ActiveWindows data while it is still alive and safe
+				for (auto* activeWindow : WindowManager::getInstance().ActiveWindows) {
+					std::unique_ptr<FFUIObject> windowPlaceholder = ObjectFactory::createGravityWellAtWindowPosition(activeWindow);
+					printf("z pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.x);
+
+					newObjects.emplace_back(std::move(windowPlaceholder));
+				}
+
+				if (!layers.empty()) {
+
+					std::swap(layers[0].objects, newObjects);
+				}
+
+				hasGeneratedPlaceholders = true;
+			}
+
+			// Throttle the CPU while the user is dragging the window around
+			std::this_thread::sleep_for(std::chrono::milliseconds(16));
+			continue;
+		}
+		else {
+			// we are not grabbing, reset the gate so it's ready for the next time grabbing mode is activated
+			// (This works across frames because this variable is static)
+			hasGeneratedPlaceholders = false;
+		}
+
 
 		//Temporary active and archived windows lists to minimize critical section
 		//In the critical section we fill the content of the real ones with the temp ones.
 		std::vector<WindowWallObject*> tempActiveWindows;
 		std::vector<WindowWallObject*> tempArchivedWindows;
 
-		std::vector<std::unique_ptr<FFUIObject>> newObjects;
-
-		addBoundaryPlanes(newObjects);
-
 		WindowScanner scanner;
-		if (scanner.initialize() && WindowManager::getInstance().isUserGrabbingWindow == false) {
+		if (scanner.initialize()) {
 			std::vector<UIElementType> typesToScan = { UIElementType::Button,
 				UIElementType::ListItem,
 				UIElementType::MenuItem,
@@ -112,6 +147,7 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 		//this locks both mutexes at the same time
 		std::scoped_lock doubleLock(objectsListMutex, WindowManager::getInstance().windowMutex);
 
+
 		if (!layers.empty()) {
 
 			//Find out which window had focus in last scan
@@ -135,7 +171,6 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 					window->setFocused(false);
 				}
 			}
-
 			WindowManager::getInstance().ArchivedWindows = tempArchivedWindows;
 
 			std::swap(layers[0].objects, newObjects);
@@ -362,7 +397,7 @@ void FFUIDesktop::updateFrame() {
 				if ((currentInput >> 4 & 0x1) == 1 && (stylusState_previous >> 4 & 0x1) == 0) {
 					SendMouseInput(MOUSEEVENTF_MIDDLEUP);
 
-					WindowManager::getInstance().isUserGrabbingWindow = false;
+					WindowManager::getInstance().isUserGrabbingWindow.store(false);
 
 				}
 
@@ -370,7 +405,7 @@ void FFUIDesktop::updateFrame() {
 				//Pressed
 				if ((currentInput >> 4 & 0x1) == 0 && (stylusState_previous >> 4 & 0x1) == 1) {
 					SendMouseInput(MOUSEEVENTF_MIDDLEDOWN);
-					WindowManager::getInstance().isUserGrabbingWindow = true;
+					WindowManager::getInstance().isUserGrabbingWindow.store(true);
 
 					printf("middle\n");
 				}
@@ -458,10 +493,10 @@ Vector3 FFUIDesktop::processForces(Location stylusLocation) {
     
 
     float globalUiForceLimit = 0.015f;
+	std::lock_guard<std::mutex> lock(objectsListMutex);
 
     for (int x = 0; x < layers.size(); x++) {
         for (int y = 0; y < layers[x].objects.size(); y++) {
-			std::lock_guard<std::mutex> lock(objectsListMutex);
 
             // Calculate individual object force
             Vector3 f = layers[x].objects[y]->updateForces(stylusLocation);
@@ -485,7 +520,6 @@ Vector3 FFUIDesktop::processForces(Location stylusLocation) {
         uiForce = uiForce.normalized() * globalUiForceLimit;
     }
 
-    // Combine: Clamped UI + Unclamped Walls
     return uiForce + boundaryForce;
 }
 

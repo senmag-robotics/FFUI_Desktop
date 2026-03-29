@@ -30,6 +30,9 @@ public:
 
     static FFUIObject_Meta createDemoObject();
 
+    static std::unique_ptr<FFUIObject> createGravityWellAtWindowPosition(WindowWallObject* targetWindow);
+
+
 
 
 private:

@@ -69,7 +69,7 @@ public:
     static void bringWindowToFront(WindowWallObject* targetWindow);
 
 
-    static void moveArchviedToActive(WindowWallObject* mainWindow);
+    static void moveArchviedToActive(WindowWallObject* targetWindow);
     void increasenNextAvailableSlot() {
         nextAvailableSlot++;
     }

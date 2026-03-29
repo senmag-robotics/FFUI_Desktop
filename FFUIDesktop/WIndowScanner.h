@@ -12,6 +12,7 @@
 // Types of UI elements we can detect
 enum class UIElementType {
     ScreenBoundary,
+    GravityWell,
     Unknown,
     DesktopIcon,
     TaskbarIcon,
@@ -21,7 +22,7 @@ enum class UIElementType {
     TextField,
     ScrollBar,
     ListItem,
-    NoFilter
+    NoFilter,
 };
 
 struct ScannedUIElement {
