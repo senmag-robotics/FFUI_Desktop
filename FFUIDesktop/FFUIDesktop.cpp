@@ -56,9 +56,16 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 				std::scoped_lock doubleLock(objectsListMutex, WindowManager::getInstance().windowMutex);
 
 				// Read the ActiveWindows data while it is still alive and safe
-				for (auto* activeWindow : WindowManager::getInstance().ActiveWindows) {
+				for (WindowWallObject* activeWindow : WindowManager::getInstance().ActiveWindows) {
 					std::unique_ptr<FFUIObject> windowPlaceholder = ObjectFactory::createGravityWellAtWindowPosition(activeWindow);
-					printf("z pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.x);
+					printf("z pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.z);
+
+					newObjects.emplace_back(std::move(windowPlaceholder));
+				}
+
+				for (WindowWallObject* activeWindow : WindowManager::getInstance().ArchivedWindows) {
+					std::unique_ptr<FFUIObject> windowPlaceholder = ObjectFactory::createGravityWellAtWindowPosition(activeWindow);
+					printf("y pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.y);
 
 					newObjects.emplace_back(std::move(windowPlaceholder));
 				}
@@ -66,6 +73,9 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 				if (!layers.empty()) {
 
 					std::swap(layers[0].objects, newObjects);
+
+					WindowManager::getInstance().ActiveWindows.clear();
+					WindowManager::getInstance().ArchivedWindows.clear();
 				}
 
 				hasGeneratedPlaceholders = true;
@@ -174,6 +184,8 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 			WindowManager::getInstance().ArchivedWindows = tempArchivedWindows;
 
 			std::swap(layers[0].objects, newObjects);
+
+
 		}
 		
 	
@@ -411,7 +423,9 @@ void FFUIDesktop::updateFrame() {
 					WindowManager::getInstance().isUserGrabbingWindow.store(false);
 
 					HWND theWindowTheStylusReleasedOn =
-						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn();
+						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn(objectsListMutex);
+
+
 
 				}
 
@@ -419,11 +433,13 @@ void FFUIDesktop::updateFrame() {
 				//Pressed
 				if ((currentInput >> 4 & 0x1) == 0 && (stylusState_previous >> 4 & 0x1) == 1) {
 					SendMouseInput(MOUSEEVENTF_MIDDLEDOWN);
-					WindowManager::getInstance().isUserGrabbingWindow.store(true);
 
 					//Save the window the stylus is on currently in corresponding static variable
 					WindowManager::getInstance().lastGrabbedWindowHandle =
-						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn();
+						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn(objectsListMutex);
+
+					WindowManager::getInstance().isUserGrabbingWindow.store(true);
+
 
 				}
 

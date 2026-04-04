@@ -165,31 +165,39 @@ void WindowManager::moveArchviedToActive(WindowWallObject* mainWindow) {
 
 }
 
-HWND WindowManager::getHandleOfTheWindowTheStylusIsOn() {
-    std::lock_guard<std::mutex> lock(WindowManager::getInstance().windowMutex);
-
-    HWND handelOfFoundWindow = WindowManager::getInstance().ActiveWindows.back()->getHandle();
+HWND WindowManager::getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMutex) {
+    std::scoped_lock doubleLock(objectsListMutex, WindowManager::getInstance().windowMutex);
 
 
-    for (WindowWallObject* window : WindowManager::getInstance().ActiveWindows) {
+
+
+    //Merge all windows in one list to iterate over all of them
+    std::vector<WindowWallObject*> allWindows;
+    allWindows.reserve(WindowManager::getInstance().ActiveWindows.size()
+        + WindowManager::getInstance().ArchivedWindows.size());
+    allWindows.insert(allWindows.end(),
+        WindowManager::getInstance().ActiveWindows.begin(),
+        WindowManager::getInstance().ActiveWindows.end());
+
+    allWindows.insert(allWindows.end(),
+        WindowManager::getInstance().ArchivedWindows.begin(),
+        WindowManager::getInstance().ArchivedWindows.end());
+
+    HWND handelOfFoundWindow = NULL;
+
+    for (WindowWallObject* window : allWindows) {
+        if (window == nullptr) continue;
+
         if (window->stylusIsOnThis()) {
 
-            handelOfFoundWindow = window->getHandle();
+
             printf("inside \n");
             std::cout << window->getMeta().customName << std::endl;
             printf("done\n");
-        }
-    }
-
-    for (WindowWallObject* window : WindowManager::getInstance().ArchivedWindows) {
-        if (window->stylusIsOnThis()) {
-
             handelOfFoundWindow = window->getHandle();
-
-            printf("inside \n");
-std::cout << window->getMeta().customName << std::endl;
-printf("done\n");
         }
+
+
     }
 
     return handelOfFoundWindow;

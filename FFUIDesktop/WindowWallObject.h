@@ -31,6 +31,11 @@ public:
     void setGrabbed(bool state) { windowMeta.isGrabbed = state; }
     Vector3 calculateInteractionForce(Location localLoc) override;
    
+    WindowWallMeta getWindowMeta() {
+        return windowMeta;
+
+    }
+
     void setArchivedState(bool state) {
         windowMeta.isArchived = state;
     }
@@ -79,7 +84,7 @@ public:
 
     static void moveThisWindowToSlot(HWND selectedWindowHandle, int targetSlot);
 
-    static HWND getHandleOfTheWindowTheStylusIsOn();
+    static HWND getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMutex);
 
     HWND lastGrabbedWindowHandle;
 
