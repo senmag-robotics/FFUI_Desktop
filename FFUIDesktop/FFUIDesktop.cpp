@@ -36,7 +36,7 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 }
 
-//We create an updated list of objects by scanning then we lock the mutex only for hte moment of switching 
+//We create an updated list of objects by scanning then we lock the mutex only for the moment of switching 
 //the old list with the new list. 
  void FFUIDesktop::initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config) {
 	while (!stoken.stop_requested()) {
@@ -286,18 +286,17 @@ Vector3 FFUIDesktop::calculateForceToClosestObject(Location deviceLoc, bool butt
 
 		if (std::abs(minDistance) < halfX  && std::abs(minDistance )< halfY) {
 
-			printf("inside\n");
 
-			// Attempt to cast the generic object into a Window object
+			// Attempt to cast the generic object into a WindowWall object
 			WindowWallObject* wallPointer = dynamic_cast<WindowWallObject*>(closestObject);
 
-			if (closestObject->getMeta().uiType == UIElementType::Window ) {
+			//if (closestObject->getMeta().uiType == UIElementType::Window ) {
 
-				printf("inside \n");
-				std::cout << closestObject->getMeta().customName << std::endl;
-				printf("done\n");
-			
-			}
+			//	printf("inside \n");
+			//	std::cout << closestObject->getMeta().customName << std::endl;
+			//	printf("done\n");
+			//
+			//}
 
 			//Remove this line to enable feature (Doesn't work currently)
 			button3Clicked = false;
@@ -341,6 +340,17 @@ void FFUIDesktop::updateFrame() {
 		if (deviceManager.devices[x].newStatus) {
 			if (deviceManager.devices[x].deviceStatus.position[2] > 100) {	//only process 'active' devices
 
+				//Fetching the device 3d position and orientation
+				Location deviceLoc;
+				deviceLoc.position.x = deviceManager.devices[x].deviceStatus.position[0];
+				deviceLoc.position.y = deviceManager.devices[x].deviceStatus.position[1];
+				deviceLoc.position.z = deviceManager.devices[x].deviceStatus.position[2];
+				deviceLoc.orientation.w = deviceManager.devices[x].deviceStatus.orientation[0];
+				deviceLoc.orientation.i = deviceManager.devices[x].deviceStatus.orientation[1];
+				deviceLoc.orientation.j = deviceManager.devices[x].deviceStatus.orientation[2];
+				deviceLoc.orientation.k = deviceManager.devices[x].deviceStatus.orientation[3];
+
+
 				/*
 				* bit 7 = aux
 				bit 6 = scroll up half
@@ -352,6 +362,7 @@ void FFUIDesktop::updateFrame() {
 				bit0 = left
 				*/
 				uint8_t currentInput = deviceManager.devices[x].deviceStatus.toolInputs;
+
 				static uint8_t stylusState_previous = 0xFF;
 				//front button
 				//Released
@@ -399,6 +410,9 @@ void FFUIDesktop::updateFrame() {
 
 					WindowManager::getInstance().isUserGrabbingWindow.store(false);
 
+					HWND theWindowTheStylusReleasedOn =
+						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn();
+
 				}
 
 
@@ -407,7 +421,10 @@ void FFUIDesktop::updateFrame() {
 					SendMouseInput(MOUSEEVENTF_MIDDLEDOWN);
 					WindowManager::getInstance().isUserGrabbingWindow.store(true);
 
-					printf("middle\n");
+					//Save the window the stylus is on currently in corresponding static variable
+					WindowManager::getInstance().lastGrabbedWindowHandle =
+						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn();
+
 				}
 
 
@@ -454,14 +471,7 @@ void FFUIDesktop::updateFrame() {
 				cursorPos.y = desktopConfig.cursorFilter * cursorPos.y + (1.0 - desktopConfig.cursorFilter) * deviceManager.devices[x].deviceStatus.position[1];
 				moveWindowsCursor(cursorPos);
 
-				Location deviceLoc;
-				deviceLoc.position.x = deviceManager.devices[x].deviceStatus.position[0];
-				deviceLoc.position.y = deviceManager.devices[x].deviceStatus.position[1];
-				deviceLoc.position.z = deviceManager.devices[x].deviceStatus.position[2];
-				deviceLoc.orientation.w = deviceManager.devices[x].deviceStatus.orientation[0];
-				deviceLoc.orientation.i = deviceManager.devices[x].deviceStatus.orientation[1];
-				deviceLoc.orientation.j = deviceManager.devices[x].deviceStatus.orientation[2];
-				deviceLoc.orientation.k = deviceManager.devices[x].deviceStatus.orientation[3];
+
 
 				//printf("%f z\n", deviceLoc.position.x);
 				Vector3 force = processForces(deviceLoc); //Interactive forces according to object type
@@ -476,6 +486,7 @@ void FFUIDesktop::updateFrame() {
 				}
 				
 
+				//Send calculated aggregate of forces to device
 				LibreOne_targets forceTargets;
 				forceTargets.targets[0] = force.x;
 				forceTargets.targets[1] = force.y;

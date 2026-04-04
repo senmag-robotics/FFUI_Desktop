@@ -15,6 +15,7 @@ struct WindowWallMeta {
     bool isArchived = false;
     bool isGrabbed = false;
     bool isFocused = false;
+    bool stylusOnThis = false;
   
 };
 
@@ -44,6 +45,9 @@ public:
         return windowMeta.isFocused;
     }
 
+    bool stylusIsOnThis() {
+        return windowMeta.stylusOnThis;
+    }
     HWND getHandle() {
         return windowMeta.windowHandle;
     }
@@ -54,6 +58,8 @@ private:
 
 
 };
+
+
 
 class WindowManager {
 private:
@@ -70,6 +76,13 @@ public:
 
 
     static void moveArchviedToActive(WindowWallObject* targetWindow);
+
+    static void moveThisWindowToSlot(HWND selectedWindowHandle, int targetSlot);
+
+    static HWND getHandleOfTheWindowTheStylusIsOn();
+
+    HWND lastGrabbedWindowHandle;
+
     void increasenNextAvailableSlot() {
         nextAvailableSlot++;
     }
@@ -84,11 +97,15 @@ public:
     int numOfActiveWindows = 2;
 
     std::unordered_map<HWND, int> windowWallSlotsMap;
+
+
+
     //Works as an ID of the positions, doesn't care what the size of map is
     int nextAvailableSlot = 0;
 
     
     std::atomic<bool> isUserGrabbingWindow{ false };
+
 
 
     

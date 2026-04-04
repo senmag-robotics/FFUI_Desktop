@@ -36,13 +36,16 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
     //if (!withinX || !withinZ) {
     //    return force;
     //}
+
+    windowMeta.stylusOnThis = false;
+
     if (isArchived()) {
 
         if (withinX && withinY && withinZ) {
             //printf("inside \n");
             //std::cout << objectMeta.customName << std::endl;
             //printf("done\n");
-
+            windowMeta.stylusOnThis = true;
            
             const Vector3 rectangleCenter(0, 0, 0);
 
@@ -82,14 +85,13 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
     
     }
     else {
+
         if (stylusPosition.y < roomDepth && stylusPosition.y > frontWallEdge) {
             //  printf("%f\n", stylusPosition.y);
 
               //We are in area of this tab, so we switch focus if we didn't already.
             if (!isFocused()) {
 
-
-                
                 WindowManager::bringWindowToFront(this);
 
                 //printf("inside \n");
@@ -99,6 +101,7 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
         }
         else if (stylusPosition.y < frontWallEdge && stylusPosition.y > backWallEdge) {
 
+            windowMeta.stylusOnThis = true;
 
             float penetrationDepth = stylusPosition.y - frontWallEdge;
             float reactionForce = -(penetrationDepth)*objectMeta.hapticSolidProperties.stiffness;
@@ -108,32 +111,6 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
             if (force.y < -objectMeta.hapticSolidProperties.solidForceLimit) force.y = -objectMeta.hapticSolidProperties.solidForceLimit;
         }
 
-        //Back side
-
-
-
-       // if (withinY
-       //     && withinX
-       //     && withinZ
-       //     ) {
-
-       //     WindowManager::bringWindowToFront(this);
-       //     printf("inside \n");
-       //  		std::cout << objectMeta.customName << std::endl;
-       //     printf("done\n");
-
-
-       //     float reactionForce = -(stylusPosition.z - halfZ) * objectMeta.hapticSolidProperties.stiffness;
-       //     force.y = reactionForce;
-
-       //     if (force.y > objectMeta.hapticSolidProperties.solidForceLimit) force.y = objectMeta.hapticSolidProperties.solidForceLimit;
-       //     if (force.y < -objectMeta.hapticSolidProperties.solidForceLimit) force.y = -objectMeta.hapticSolidProperties.solidForceLimit;
-       ////     setFocused(true);
-
-       // }
-       // 
-
-    
     
     
     }
@@ -186,4 +163,34 @@ void WindowManager::moveArchviedToActive(WindowWallObject* mainWindow) {
 
 
 
+}
+
+HWND WindowManager::getHandleOfTheWindowTheStylusIsOn() {
+    std::lock_guard<std::mutex> lock(WindowManager::getInstance().windowMutex);
+
+    HWND handelOfFoundWindow = WindowManager::getInstance().ActiveWindows.back()->getHandle();
+
+
+    for (WindowWallObject* window : WindowManager::getInstance().ActiveWindows) {
+        if (window->stylusIsOnThis()) {
+
+            handelOfFoundWindow = window->getHandle();
+            printf("inside \n");
+            std::cout << window->getMeta().customName << std::endl;
+            printf("done\n");
+        }
+    }
+
+    for (WindowWallObject* window : WindowManager::getInstance().ArchivedWindows) {
+        if (window->stylusIsOnThis()) {
+
+            handelOfFoundWindow = window->getHandle();
+
+            printf("inside \n");
+std::cout << window->getMeta().customName << std::endl;
+printf("done\n");
+        }
+    }
+
+    return handelOfFoundWindow;
 }
