@@ -140,7 +140,20 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 					windows.end());
 
 
+			//We clean up closed windows
+
+			std::vector<HWND> currentOpenHwnds;
+			currentOpenHwnds.reserve(windows.size());
+			for (const auto& win : windows) {
+				currentOpenHwnds.push_back(win.hwnd);
+			}
+
+
+			WindowManager::getInstance().removeClosedWindows(currentOpenHwnds);
+
+
 		
+			//Now we create the objects of 
 
 			std::vector<std::unique_ptr<FFUIObject>> scannedObjects =
 				ObjectFactory::createObjectsFromUIElements(allscannedElements, config,

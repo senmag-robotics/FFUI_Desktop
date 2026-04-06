@@ -88,7 +88,7 @@ public:
 
     static HWND getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMutex, const std::vector<std::unique_ptr<FFUIObject>>& objectsList);
 
-
+    static void removeClosedWindows(const std::vector<HWND>& currentlyOpenWindows);
 
     HWND lastGrabbedWindowHandle;
 

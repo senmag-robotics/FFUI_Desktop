@@ -1,6 +1,7 @@
 #include "WindowWallObject.h"
 #include "FFUIDesktop.h"
 #include "GravityWellObject.h"
+#include <algorithm>
 WindowWallObject::WindowWallObject(WindowWallMeta wallMeta, Vector3 position, float thickness, float stiffness,
     float solidForceLimit, float height, float width)
     : FFUIObject({
@@ -239,19 +240,68 @@ HWND WindowManager::getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMut
 
 void WindowManager::swapWindowSlots(HWND grabbedWindow, HWND targetWindow) {
     std::lock_guard<std::mutex> lock(windowMutex);
-
-    // Ensure both windows exist in the map to prevent creating junk keys
+    
+    //Ensure both windows exist in the map to prevent creating junk keys
     if (windowWallSlotsMap.find(grabbedWindow) != windowWallSlotsMap.end() &&
         windowWallSlotsMap.find(targetWindow) != windowWallSlotsMap.end()) {
 
-        // Swap the integer slots
+        //Swap the integer slots
         int tempSlot = windowWallSlotsMap[grabbedWindow];
-        windowWallSlotsMap[grabbedWindow] = windowWallSlotsMap[targetWindow];
+        windowWallSlotsMap[grabbedWindow] = windowWallSlotsMap[targetWindow];   
         windowWallSlotsMap[targetWindow] = tempSlot;
 
-        // The next time the window scanner runs it will read these 
-        // updated slots and generate the positions in their new locations
-        // based on the new slots.
+        //The next time the window scanner runs it will read these 
+        //updated slots and generate the positions in their new locations
+        //based on the new slots.
     }
 }
 
+void WindowManager::removeClosedWindows(const std::vector<HWND>& currentlyOpenWindows) {
+    std::lock_guard<std::mutex> lock(WindowManager::getInstance().windowMutex);
+
+    WindowManager& windowManager = WindowManager::getInstance();
+
+
+    bool slotsChanged = false;
+
+    // Remove any HWND from the map that is no longer open in Windows
+    for (auto it = windowManager.windowWallSlotsMap.begin(); it != windowManager.windowWallSlotsMap.end(); ) {
+        HWND mappedHwnd = it->first;
+
+        // Check if mappedHwnd exists in the currentlyOpenWindows list
+        auto found = std::find(currentlyOpenWindows.begin(), currentlyOpenWindows.end(), mappedHwnd);
+
+        if (found == currentlyOpenWindows.end()) {
+            //The window was closed. Erase it from the map.
+            it = windowManager.windowWallSlotsMap.erase(it);
+            slotsChanged = true;
+        }
+        else {
+            ++it;
+        }
+    }
+
+    //If a window was removed, we need to collapse the empty physical slots
+    if (slotsChanged) {
+        // Extract the surviving windows and their current slots
+        std::vector<std::pair<HWND, int>> survivingWindows(windowManager.windowWallSlotsMap.begin(), windowManager.windowWallSlotsMap.end());
+
+        // Sort them by their old slot order so they don't swap places with each other
+        std::sort(survivingWindows.begin(), survivingWindows.end(),
+            [](const std::pair<HWND, int>& a, const std::pair<HWND, int>& b) {
+                return a.second < b.second;
+            }
+        );
+
+        // Reassigning slots 
+        windowManager.windowWallSlotsMap.clear();
+        int newSlotIndex = 0;
+        for (const auto& pair : survivingWindows) {
+            windowManager.windowWallSlotsMap[pair.first] = newSlotIndex;
+            newSlotIndex++;
+        }
+
+        // Reset the next available slot for the next time a completely new window opens
+        windowManager.nextAvailableSlot = newSlotIndex;
+    }
+}
