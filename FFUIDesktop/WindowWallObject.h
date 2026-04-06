@@ -82,9 +82,13 @@ public:
 
     static void moveArchviedToActive(WindowWallObject* targetWindow);
 
-    static void moveThisWindowToSlot(HWND selectedWindowHandle, int targetSlot);
+    void swapWindowSlots(HWND grabbedWindow, HWND targetWindow);
 
     static HWND getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMutex);
+
+    static HWND getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMutex, const std::vector<std::unique_ptr<FFUIObject>>& objectsList);
+
+
 
     HWND lastGrabbedWindowHandle;
 

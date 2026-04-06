@@ -1,5 +1,6 @@
 #include "WindowWallObject.h"
 #include "FFUIDesktop.h"
+#include "GravityWellObject.h"
 WindowWallObject::WindowWallObject(WindowWallMeta wallMeta, Vector3 position, float thickness, float stiffness,
     float solidForceLimit, float height, float width)
     : FFUIObject({
@@ -166,9 +167,8 @@ void WindowManager::moveArchviedToActive(WindowWallObject* mainWindow) {
 }
 
 HWND WindowManager::getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMutex) {
+
     std::scoped_lock doubleLock(objectsListMutex, WindowManager::getInstance().windowMutex);
-
-
 
 
     //Merge all windows in one list to iterate over all of them
@@ -183,12 +183,16 @@ HWND WindowManager::getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMut
         WindowManager::getInstance().ArchivedWindows.begin(),
         WindowManager::getInstance().ArchivedWindows.end());
 
+    if (allWindows.empty()) {
+        printf("empty here\n");
+    }
+
     HWND handelOfFoundWindow = NULL;
 
     for (WindowWallObject* window : allWindows) {
         if (window == nullptr) continue;
 
-        if (window->stylusIsOnThis()) {
+ if (window->stylusIsOnThis()) {
 
 
             printf("inside \n");
@@ -202,3 +206,52 @@ HWND WindowManager::getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMut
 
     return handelOfFoundWindow;
 }
+
+
+HWND WindowManager::getHandleOfTheWindowTheStylusIsOn(std::mutex& objectsListMutex, const std::vector<std::unique_ptr<FFUIObject>>& objectsList){
+
+
+    std::scoped_lock lock(objectsListMutex);
+
+    HWND handelOfFoundWindow = NULL;
+
+    for (const auto& objPtr : objectsList) {
+        //We only care about the gravity wells 
+        if (objPtr->getMeta().uiType != UIElementType::GravityWell) continue;
+
+        GravityWellObject* gravityWell = dynamic_cast<GravityWellObject*>(objPtr.get());
+
+        if (gravityWell != nullptr && gravityWell->correspondingWindowMeta.stylusOnThis) {
+
+
+            printf("inside \n");
+            std::cout << gravityWell->getMeta().customName << std::endl;
+            printf("done\n");
+            handelOfFoundWindow = gravityWell->correspondingWindowMeta.windowHandle;
+        }
+
+
+    }
+
+    return handelOfFoundWindow;
+}
+
+
+void WindowManager::swapWindowSlots(HWND grabbedWindow, HWND targetWindow) {
+    std::lock_guard<std::mutex> lock(windowMutex);
+
+    // Ensure both windows exist in the map to prevent creating junk keys
+    if (windowWallSlotsMap.find(grabbedWindow) != windowWallSlotsMap.end() &&
+        windowWallSlotsMap.find(targetWindow) != windowWallSlotsMap.end()) {
+
+        // Swap the integer slots
+        int tempSlot = windowWallSlotsMap[grabbedWindow];
+        windowWallSlotsMap[grabbedWindow] = windowWallSlotsMap[targetWindow];
+        windowWallSlotsMap[targetWindow] = tempSlot;
+
+        // The next time the window scanner runs it will read these 
+        // updated slots and generate the positions in their new locations
+        // based on the new slots.
+    }
+}
+

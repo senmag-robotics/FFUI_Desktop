@@ -58,14 +58,14 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 				// Read the ActiveWindows data while it is still alive and safe
 				for (WindowWallObject* activeWindow : WindowManager::getInstance().ActiveWindows) {
 					std::unique_ptr<FFUIObject> windowPlaceholder = ObjectFactory::createGravityWellAtWindowPosition(activeWindow);
-					printf("z pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.z);
+					//printf("z pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.z);
 
 					newObjects.emplace_back(std::move(windowPlaceholder));
 				}
 
 				for (WindowWallObject* activeWindow : WindowManager::getInstance().ArchivedWindows) {
 					std::unique_ptr<FFUIObject> windowPlaceholder = ObjectFactory::createGravityWellAtWindowPosition(activeWindow);
-					printf("y pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.y);
+					//printf("y pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.y);
 
 					newObjects.emplace_back(std::move(windowPlaceholder));
 				}
@@ -415,16 +415,23 @@ void FFUIDesktop::updateFrame() {
 				}
 
 
-				//middle click
+				//middle click (disabled normal behavious and instead used for grabbing mode
 				//Released
 				if ((currentInput >> 4 & 0x1) == 1 && (stylusState_previous >> 4 & 0x1) == 0) {
-					SendMouseInput(MOUSEEVENTF_MIDDLEUP);
+					//SendMouseInput(MOUSEEVENTF_MIDDLEUP);
+
+					HWND theWindowTheStylusReleasedOn =
+						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn(objectsListMutex, layers[0].objects);
+
+					HWND grabbedWindow = WindowManager::getInstance().lastGrabbedWindowHandle;
+					if (theWindowTheStylusReleasedOn != NULL && grabbedWindow != NULL) {
+						// Trigger your swap logic here using the map!
+						WindowManager::getInstance().swapWindowSlots(grabbedWindow, theWindowTheStylusReleasedOn);
+					}
 
 					WindowManager::getInstance().isUserGrabbingWindow.store(false);
 
-					HWND theWindowTheStylusReleasedOn =
-						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn(objectsListMutex);
-
+			
 
 
 				}
@@ -432,12 +439,13 @@ void FFUIDesktop::updateFrame() {
 
 				//Pressed
 				if ((currentInput >> 4 & 0x1) == 0 && (stylusState_previous >> 4 & 0x1) == 1) {
-					SendMouseInput(MOUSEEVENTF_MIDDLEDOWN);
+					//SendMouseInput(MOUSEEVENTF_MIDDLEDOWN);
 
 					//Save the window the stylus is on currently in corresponding static variable
 					WindowManager::getInstance().lastGrabbedWindowHandle =
 						WindowManager::getInstance().getHandleOfTheWindowTheStylusIsOn(objectsListMutex);
 
+					//This will trigger the scanner thread to sleep and create the gravity wells. 
 					WindowManager::getInstance().isUserGrabbingWindow.store(true);
 
 

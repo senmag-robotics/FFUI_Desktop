@@ -55,13 +55,20 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
 
 std::unique_ptr<FFUIObject> ObjectFactory::createGravityWellAtWindowPosition(WindowWallObject* targetWindow) {
 
+    if (!targetWindow) {
+        printf("Windows have been removed from memory at the wrong time");
+        return nullptr;
+    }
+
     HapticSolidProperties props = getHapticPropsOfType(UIElementType::GravityWell);
     //props.solidForceLimit = 0.0002f;
 
     //get the window position
 
-    FFUIObject_Meta buttonMeta{};
-    buttonMeta.hapticSolidProperties = props;
+    FFUIObject_Meta gravityWellMeta{};
+    gravityWellMeta.hapticSolidProperties = props;
+    gravityWellMeta.uiType = UIElementType::GravityWell;
+
 
 
     //We set the x and y of the well to be the center of the workspace, and the z position to be target window's.
@@ -71,24 +78,24 @@ std::unique_ptr<FFUIObject> ObjectFactory::createGravityWellAtWindowPosition(Win
     Vector3 slotPosition(0, 0, 0);
     if (targetWindow->isArchived()) {
         slotPosition = Vector3(0, windowYPosition - 10, windowZPosition + 5);
-        buttonMeta.scale = targetWindow->getMeta().scale;
+        gravityWellMeta.scale = targetWindow->getMeta().scale;
 
 
-        buttonMeta.scale.z = 10;
+        gravityWellMeta.scale.z = 10;
 
 
     }
     else {
         slotPosition = Vector3(0, 0, windowZPosition + 10);
-        buttonMeta.scale = Vector3(70, 50, 10);
+        gravityWellMeta.scale = Vector3(70, 50, 10);
 
     }
 
-    buttonMeta.globalPosition = slotPosition;
-    buttonMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
-    buttonMeta.customName = targetWindow->getMeta().customName + " " + "place holder";
+    gravityWellMeta.globalPosition = slotPosition;
+    gravityWellMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
+    gravityWellMeta.customName = targetWindow->getMeta().customName + " " + "place holder";
 
-    auto builtGravityWell = std::make_unique<GravityWellObject>(buttonMeta);
+    auto builtGravityWell = std::make_unique<GravityWellObject>(gravityWellMeta);
 
     builtGravityWell->correspondingWindowMeta = targetWindow->getWindowMeta();
     return builtGravityWell;

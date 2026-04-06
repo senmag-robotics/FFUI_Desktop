@@ -47,7 +47,10 @@ Vector3 GravityWellObject::calculateInteractionForce(Location localLoc) {
         return force;
     }
 
+    correspondingWindowMeta.stylusOnThis = false;
+
     if (withinX && withinY && withinZ) {
+        correspondingWindowMeta.stylusOnThis = true;
     
         force = toCenter * objectMeta.hapticSolidProperties.stiffness;
 
