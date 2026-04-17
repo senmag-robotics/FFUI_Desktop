@@ -182,8 +182,8 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
 
             float thickness = 10.0f;
       
-
-            float zPos = endZ - roomDepth - ((roomDepth + thickness) * physicalSlot);
+            float inititalRoomMargin = 5;
+            float zPos = endZ - inititalRoomMargin - roomDepth - ((roomDepth + thickness) * physicalSlot);
 
             Vector3 position = screenToWorkspace(
                 elem.center,

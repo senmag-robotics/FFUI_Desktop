@@ -17,8 +17,8 @@
 #include <io.h>
 
 
-#define DEVICE_WORKSPACE_X	300
-#define DEVICE_WORKSPACE_Y	250
+#define DEVICE_WORKSPACE_X	250
+#define DEVICE_WORKSPACE_Y	180
 
 //The range of the z axis values that the device reaches (not counting the front wall)
 #define startZ	126.0f
