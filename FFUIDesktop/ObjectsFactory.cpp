@@ -180,10 +180,10 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
                 WindowManager::getInstance().increasenNextAvailableSlot();
             }
 
-            float thickness = 10.0f;
-      
+            float WallsThickness = 10.0f;
             float inititalRoomMargin = 5;
-            float zPos = endZ - inititalRoomMargin - roomDepth - ((roomDepth + thickness) * physicalSlot);
+
+            float zPos = endZ - inititalRoomMargin - roomDepth - ((roomDepth + WallsThickness) * physicalSlot);
 
             Vector3 position = screenToWorkspace(
                 elem.center,
@@ -200,16 +200,30 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             float width = elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X;
 
             if (physicalSlot >= maxActive) {
+                float initialSlotMargin = 5;
+                float numberOfArchivedWindowsPossible = 9.0;
+
+                //Put the slots list in the furthest point from the user, behind the last active window
+                float archivedWindowsZPosition = endZ - inititalRoomMargin - maxActive * roomDepth - WallsThickness;
+                //Z thickness of this list is the margin left between the last active window and the least possible z axis value.
+                float slotsThickness = archivedWindowsZPosition - startZ;
+                if (slotsThickness < 5) {
+                    printf("No space available for an archived list; reduce the number of active windows or their room depth");
+
+                }
+                //Shift the position further such that the list is exactly in the middle of the gap.
+                // (1/2 thickness is added on both sides later to fill the whole gap available)
+                archivedWindowsZPosition -= slotsThickness / 2.0;
             
-                height = 40;
+
+                height = DEVICE_WORKSPACE_Y - initialSlotMargin / numberOfArchivedWindowsPossible; 
                 width = DEVICE_WORKSPACE_X;
                 position =  Vector3(0.0f,
-                    125.0f - (height * (physicalSlot - maxActive)),
-                    135);
+                    DEVICE_WORKSPACE_Y/2.0 - initialSlotMargin - (height * (physicalSlot - maxActive)),
+                    archivedWindowsZPosition );
 
                 
 
-                thickness = 25;
 
               // std::cout << "---" << std::endl;
                //std::cout << std::string(windowMeta.windowTitle.begin(), windowMeta.windowTitle.end()) << std::endl;

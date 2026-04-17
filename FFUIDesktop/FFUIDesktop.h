@@ -21,7 +21,7 @@
 #define DEVICE_WORKSPACE_Y	180
 
 //The range of the z axis values that the device reaches (not counting the front wall)
-#define startZ	126.0f
+#define startZ	124.0f
 #define endZ	268.0f
 
 # define roomDepth 50

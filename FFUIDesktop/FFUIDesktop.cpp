@@ -510,7 +510,7 @@ void FFUIDesktop::updateFrame() {
 
 
 
-				//printf("%f z\n", deviceLoc.position.x);
+				//printf("%f z\n", deviceLoc.position.z);
 				Vector3 force = processForces(deviceLoc); //Interactive forces according to object type
 
 
