@@ -104,8 +104,12 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
         else if (stylusPosition.y < frontWallEdge && stylusPosition.y > backWallEdge) {
 
             windowMeta.stylusOnThis = true;
+            float penetrationDepth = 0;
 
-            float penetrationDepth = stylusPosition.y - frontWallEdge;
+            if (stylusPosition.y < 0) 
+               penetrationDepth = stylusPosition.y - backWallEdge;
+            else
+                penetrationDepth = stylusPosition.y - frontWallEdge;
             float reactionForce = -(penetrationDepth)*objectMeta.hapticSolidProperties.stiffness;
             force.y = reactionForce;
 

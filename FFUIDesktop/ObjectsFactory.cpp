@@ -37,7 +37,7 @@ HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
         break;
 
     case UIElementType::Window:
-        props.stiffness = 0.001f;
+        props.stiffness = 0.0015f;
         props.solidForceLimit = 0.006;
 
         break;
