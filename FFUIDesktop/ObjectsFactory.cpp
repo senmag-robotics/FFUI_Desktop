@@ -74,20 +74,20 @@ std::unique_ptr<FFUIObject> ObjectFactory::createGravityWellAtWindowPosition(Win
     //We set the x and y of the well to be the center of the workspace, and the z position to be target window's.
     float windowZPosition = targetWindow->getMeta().globalPosition.z;
     float windowYPosition = targetWindow->getMeta().globalPosition.y;
+    Vector3 scale = targetWindow->getMeta().scale;
 
     Vector3 slotPosition(0, 0, 0);
     if (targetWindow->isArchived()) {
-        slotPosition = Vector3(0, windowYPosition - 10, windowZPosition + 5);
-        gravityWellMeta.scale = targetWindow->getMeta().scale;
+        slotPosition = Vector3(0, windowYPosition, windowZPosition);
+        gravityWellMeta.scale = Vector3(scale.x, scale.z, scale.y) * 0.7;
 
 
-        gravityWellMeta.scale.z = 10;
 
 
     }
     else {
         slotPosition = Vector3(0, 0, windowZPosition + 10);
-        gravityWellMeta.scale = Vector3(70, 50, 10);
+        gravityWellMeta.scale = Vector3(roomDepth * 1.5, roomDepth, 10);
 
     }
 
