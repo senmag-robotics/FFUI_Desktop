@@ -216,13 +216,13 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
                 archivedWindowsZPosition -= slotsThickness / 2.0;
             
 
-                height = DEVICE_WORKSPACE_Y - initialSlotMargin / numberOfArchivedWindowsPossible; 
+                height = (DEVICE_WORKSPACE_Y - initialSlotMargin) / numberOfArchivedWindowsPossible; 
                 width = DEVICE_WORKSPACE_X;
                 position =  Vector3(0.0f,
                     DEVICE_WORKSPACE_Y/2.0 - initialSlotMargin - (height * (physicalSlot - maxActive)),
                     archivedWindowsZPosition );
 
-                
+                WallsThickness = slotsThickness;
 
 
               // std::cout << "---" << std::endl;
@@ -237,7 +237,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             }
 
           
-            theCreatedUIObjects.emplace_back(std::make_unique<WindowWallObject>(windowMeta, position, thickness,
+            theCreatedUIObjects.emplace_back(std::make_unique<WindowWallObject>(windowMeta, position, WallsThickness,
                 stiffness, solidForceLimit,
                 height, width));
 
