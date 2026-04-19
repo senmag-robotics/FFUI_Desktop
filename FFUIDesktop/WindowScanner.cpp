@@ -12,6 +12,8 @@ UIElementType WindowScanner::mapControlType(int controlTypeId) {
     case UIA_ButtonControlTypeId:    return UIElementType::Button;
     case UIA_WindowControlTypeId:    return UIElementType::Window;
     case UIA_MenuItemControlTypeId:  return UIElementType::MenuItem;
+    case UIA_CheckBoxControlTypeId:  return UIElementType::Button;
+
     case UIA_ListItemControlTypeId:  return UIElementType::ListItem;
     case UIA_TabItemControlTypeId:  return UIElementType::ListItem;
 

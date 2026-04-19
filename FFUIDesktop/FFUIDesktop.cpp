@@ -36,10 +36,17 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 
 }
 
+
+
 //We create an updated list of objects by scanning then we lock the mutex only for the moment of switching 
 //the old list with the new list. 
  void FFUIDesktop::initiatePeriodicScanner(std::stop_token stoken, FFUIDesktop_Config config) {
 	while (!stoken.stop_requested()) {
+
+
+
+
+
 
 		std::vector<std::unique_ptr<FFUIObject>> newObjects;
 
@@ -98,6 +105,10 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 		std::vector<WindowWallObject*> tempArchivedWindows;
 
 		WindowScanner scanner;
+
+
+
+
 		if (scanner.initialize()) {
 			std::vector<UIElementType> typesToScan = { UIElementType::Button,
 				UIElementType::ListItem,
@@ -583,5 +594,15 @@ void FFUIDesktop::moveWindowsCursor(Vector2 targetPos) {
 	if (targetPos.y < 0) targetPos.y = 0;
 	if (targetPos.y > desktopConfig.screenSize.y) targetPos.y = desktopConfig.screenSize.y;
 
-	SetCursorPos(targetPos.x, desktopConfig.screenSize.y - targetPos.y);
+	int finalPixelX = static_cast<int>(targetPos.x);
+	int finalPixelY = static_cast<int>(desktopConfig.screenSize.y - targetPos.y);
+
+	INPUT input = { 0 };
+	input.type = INPUT_MOUSE;
+	input.mi.dx = (finalPixelX * 65535) / (desktopConfig.screenSize.x - 1);
+	input.mi.dy = (finalPixelY * 65535) / (desktopConfig.screenSize.y - 1);
+
+	input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+	SendInput(1, &input, sizeof(INPUT));
+
 }

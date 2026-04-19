@@ -32,7 +32,14 @@
 
 #define SCROLL_REPEAT_RATE	10			//scroll ops per second
 
-// Inside your main Manager class (e.g., FFUIDesktop.h)
+
+
+#include <atomic>
+
+inline std::atomic<bool> focusRequested{ false };
+inline Vector2 focusPixelTarget{ 0, 0 };
+inline std::string lastFocusedObjectName = ""; // To prevent NVDA from stuttering
+
 
 struct SnapAnchor {
 	bool isTracking = false;
@@ -79,11 +86,11 @@ public:
 	std::mutex objectsListMutex;
 
 	std::vector<std::unique_ptr<FFUIObject>> objects;
+	static inline FFUIDesktop_Config	desktopConfig;
 
 private:
 
 	void addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList);
-	FFUIDesktop_Config	desktopConfig;
 
 	bool stylusSnapped = false;
 

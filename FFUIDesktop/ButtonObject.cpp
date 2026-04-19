@@ -68,7 +68,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
         force.z = 0;
 
         
-
+        
         if (force.length() > maxForce) {
             force *= maxForce / force.length();
         }

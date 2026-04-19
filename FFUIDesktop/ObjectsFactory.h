@@ -21,6 +21,9 @@ public:
         float workspaceX,
         float workspaceY);
 
+    static Vector2 workspaceToScreen(Vector3 workspacePos, Vector2 screenSize, float workspaceX, float workspaceY);
+
+
     static std::vector<std::unique_ptr<FFUIObject>> createObjectsFromUIElements(
         std::vector<ScannedUIElement>& scannedElements,
         FFUIDesktop_Config config,

@@ -9,6 +9,15 @@ Vector3 ObjectFactory::screenToWorkspace(Vector2 screenPos, Vector2 screenSize, 
     float y = (0.5f - screenPos.y / screenSize.y) * workspaceY;
     return Vector3(x, y, zPosition);
 }
+
+Vector2 ObjectFactory::workspaceToScreen(Vector3 workspacePos, Vector2 screenSize, float workspaceX, float workspaceY)
+{
+    float screenX = ((workspacePos.x / workspaceX) + 0.5f) * screenSize.x;
+    float screenY = (0.5f - (workspacePos.y / workspaceY)) * screenSize.y;
+
+    return Vector2(screenX, screenY);
+}
+
 HapticSolidProperties ObjectFactory::getHapticPropsOfType(UIElementType type)
 {
 

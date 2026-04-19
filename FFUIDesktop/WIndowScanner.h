@@ -61,7 +61,6 @@ public:
 
     std::vector<HWND> foundWindowHandles;
 
-
 private:
     IUIAutomation* pAutomation = nullptr;
     UIElementType mapControlType(int controlTypeId);
