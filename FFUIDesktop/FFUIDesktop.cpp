@@ -18,6 +18,15 @@ void SendMouseInput(DWORD flags, DWORD data = 0) {
 }
 
 void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
+	//Initialize speaker 
+
+
+	if (FAILED(CoInitialize(NULL))) {
+		// Handle COM init failure if needed
+	}
+	CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void**)&pSapiVoice);
+
+
 	desktopConfig = config;
 
 	cusrsorScale.x = desktopConfig.screenSize.x / DEVICE_WORKSPACE_X;
@@ -70,8 +79,8 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 					newObjects.emplace_back(std::move(windowPlaceholder));
 				}
 
-				for (WindowWallObject* activeWindow : WindowManager::getInstance().ArchivedWindows) {
-					std::unique_ptr<FFUIObject> windowPlaceholder = ObjectFactory::createGravityWellAtWindowPosition(activeWindow);
+				for (WindowWallObject* archivedWindow : WindowManager::getInstance().ArchivedWindows) {
+					std::unique_ptr<FFUIObject> windowPlaceholder = ObjectFactory::createGravityWellAtWindowPosition(archivedWindow);
 					//printf("y pos: %f\n", windowPlaceholder.get()->getMeta().globalPosition.y);
 
 					newObjects.emplace_back(std::move(windowPlaceholder));
@@ -455,7 +464,7 @@ void FFUIDesktop::updateFrame() {
 
 					WindowManager::getInstance().isUserGrabbingWindow.store(false);
 
-			
+
 
 
 				}
@@ -506,19 +515,26 @@ void FFUIDesktop::updateFrame() {
 				//side button
 				//Initial press
 				if ((currentInput >> 7 & 0x1) == 0 && (stylusState_previous >> 7 & 0x1) == 1) {
-				//	std::cout << "flag1: " << stylusSnapped << std::endl;
+					//	std::cout << "flag1: " << stylusSnapped << std::endl;
 
 					button3Clicked = true;
 					//SendMouseInput(MOUSEEVENTF_XUP, XBUTTON1);
 				}
-			
+
 
 				stylusState_previous = currentInput;
 
 				cursorPos.x = desktopConfig.cursorFilter * cursorPos.x + (1.0 - desktopConfig.cursorFilter) * deviceManager.devices[x].deviceStatus.position[0];
-				cursorPos.y = desktopConfig.cursorFilter * cursorPos.y + (1.0 - desktopConfig.cursorFilter) * deviceManager.devices[x].deviceStatus.position[1];
-				moveWindowsCursor(cursorPos);
 
+				cursorPos.y = desktopConfig.cursorFilter * cursorPos.y + (1.0 - desktopConfig.cursorFilter) * deviceManager.devices[x].deviceStatus.position[1];
+
+
+
+
+
+				//if (deviceLoc.position.z > 144) {
+				moveWindowsCursor(cursorPos);
+				//}
 
 
 				//printf("%f z\n", deviceLoc.position.z);
@@ -594,6 +610,8 @@ void FFUIDesktop::moveWindowsCursor(Vector2 targetPos) {
 	if (targetPos.y < 0) targetPos.y = 0;
 	if (targetPos.y > desktopConfig.screenSize.y) targetPos.y = desktopConfig.screenSize.y;
 
+
+
 	int finalPixelX = static_cast<int>(targetPos.x);
 	int finalPixelY = static_cast<int>(desktopConfig.screenSize.y - targetPos.y);
 
@@ -603,6 +621,8 @@ void FFUIDesktop::moveWindowsCursor(Vector2 targetPos) {
 	input.mi.dy = (finalPixelY * 65535) / (desktopConfig.screenSize.y - 1);
 
 	input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+
+	
 	SendInput(1, &input, sizeof(INPUT));
 
 }

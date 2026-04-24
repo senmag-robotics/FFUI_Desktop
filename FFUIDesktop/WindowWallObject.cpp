@@ -18,6 +18,30 @@ WindowWallObject::WindowWallObject(WindowWallMeta wallMeta, Vector3 position, fl
 {
 }
 
+
+void WindowManager::speakWindowName(const std::wstring& windowName) {
+    // Only speak if this is a NEW window we haven't just spoken
+    if (windowName != lastSpokenWindowName) {
+
+        if (pSapiVoice && !windowName.empty()) {
+            // 
+            pSapiVoice->Speak(windowName.c_str(), SPF_ASYNC | SPF_PURGEBEFORESPEAK, NULL);
+        }
+
+        // Update the manager's memory
+        lastSpokenWindowName = windowName;
+    }
+}
+
+void WindowManager::resetSpokenWindowName(const std::wstring& windowName) {
+    // If we pull out of the currently spoken window, clear the memory
+    if (lastSpokenWindowName == windowName) {
+        lastSpokenWindowName = L""; 
+    }
+}
+
+
+
 Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
     Vector3 force(0, 0, 0);
     //printf("title: %s\n", objectMeta.customName);
@@ -43,7 +67,7 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
 
     if (isArchived()) {
 
-        if (withinX && withinY && withinZ) {
+        if (withinX && withinY && withinZ){ 
             //printf("inside \n");
             //std::cout << objectMeta.customName << std::endl;
             //printf("done\n");
@@ -81,7 +105,18 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
                 force *= maxForce / force.length();
             }
 
+
+
+            WindowManager::getInstance().speakWindowName(windowMeta.windowTitle);
+
+
         }
+        else {
+
+
+            WindowManager::getInstance().resetSpokenWindowName(windowMeta.windowTitle);
+        }
+        
     
     
     
@@ -125,6 +160,7 @@ Vector3 WindowWallObject::calculateInteractionForce(Location localLoc) {
 
     return force;
 }
+
 
 
 

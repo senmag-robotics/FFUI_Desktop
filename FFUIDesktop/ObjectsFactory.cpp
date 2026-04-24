@@ -88,15 +88,15 @@ std::unique_ptr<FFUIObject> ObjectFactory::createGravityWellAtWindowPosition(Win
     Vector3 slotPosition(0, 0, 0);
     if (targetWindow->isArchived()) {
         slotPosition = Vector3(0, windowYPosition, windowZPosition);
-        gravityWellMeta.scale = Vector3(scale.x, scale.z, scale.y) * 0.7;
+        gravityWellMeta.scale = Vector3(scale.x, scale.z, scale.y) * 0.8;
 
 
 
 
     }
     else {
-        slotPosition = Vector3(0, 0, windowZPosition + 10);
-        gravityWellMeta.scale = Vector3(roomDepth * 1.5, roomDepth, 10);
+        slotPosition = Vector3(0, 0, windowZPosition + 15);
+        gravityWellMeta.scale = Vector3(roomDepth * 2, roomDepth * 1.5, 20);
 
     }
 
@@ -209,7 +209,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             float width = elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X;
 
             if (physicalSlot >= maxActive) {
-                float initialSlotMargin = 5;
+                float initialSlotMargin = 10;
                 float numberOfArchivedWindowsPossible = 9.0;
 
                 //Put the slots list in the furthest point from the user, behind the last active window
@@ -225,7 +225,9 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
                 archivedWindowsZPosition -= slotsThickness / 2.0;
             
 
-                height = (DEVICE_WORKSPACE_Y - initialSlotMargin) / numberOfArchivedWindowsPossible; 
+               // height = (DEVICE_WORKSPACE_Y - initialSlotMargin) / numberOfArchivedWindowsPossible; 
+                height = 30;
+
                 width = DEVICE_WORKSPACE_X;
                 position =  Vector3(0.0f,
                     DEVICE_WORKSPACE_Y/2.0 - initialSlotMargin - (height * (physicalSlot - maxActive)),

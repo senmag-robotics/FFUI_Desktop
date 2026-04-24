@@ -59,6 +59,12 @@ Vector3 GravityWellObject::calculateInteractionForce(Location localLoc) {
             force = force.normalized() * forceLimit;
         }
 
+        //Speak the name
+        WindowManager::getInstance().speakWindowName(L"slot of " + correspondingWindowMeta.windowTitle);
+
+    }
+    else {
+        WindowManager::getInstance().resetSpokenWindowName(L"slot of " + correspondingWindowMeta.windowTitle);
     }
 
     return force;

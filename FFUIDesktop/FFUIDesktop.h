@@ -11,7 +11,7 @@
 #include "HapticVibration.h"
 #include "SolidPlane.h"
 #include "ButtonObject.h"
-
+#include <sapi.h>
 //We use these libraries to upgrade what the console can print with wcout
 #include <fcntl.h>
 #include <io.h>
@@ -35,6 +35,9 @@
 
 
 #include <atomic>
+
+inline ISpVoice* pSapiVoice = nullptr;
+
 
 inline std::atomic<bool> focusRequested{ false };
 inline Vector2 focusPixelTarget{ 0, 0 };

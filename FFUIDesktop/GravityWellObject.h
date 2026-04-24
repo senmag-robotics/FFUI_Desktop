@@ -10,5 +10,5 @@ public:
     WindowWallMeta correspondingWindowMeta;
     
 private:
-    float attractionRadius = 10;  // How close the stylus needs to be to feel the pull
+    float attractionRadius = 0;  // How close the stylus needs to be to feel the pull
 };

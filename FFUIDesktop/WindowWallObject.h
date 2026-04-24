@@ -90,6 +90,11 @@ public:
 
     static void removeClosedWindows(const std::vector<HWND>& currentlyOpenWindows);
 
+    void speakWindowName(const std::wstring& windowName);
+    void resetSpokenWindowName(const std::wstring& windowName);
+
+
+    std::wstring lastSpokenWindowName = L"";
     HWND lastGrabbedWindowHandle;
 
     void increasenNextAvailableSlot() {
