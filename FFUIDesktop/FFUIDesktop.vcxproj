@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ButtonObject.cpp" />
+    <ClCompile Include="GravityWellObject.cpp" />
     <ClCompile Include="HapticObjects\FFUIDesktop_object.cpp" />
     <ClCompile Include="HapticObjects\HapticVibration.cpp" />
     <ClCompile Include="HapticObjects\SolidPlane.cpp" />
@@ -143,10 +144,12 @@
     <ClCompile Include="SenmagConnect\SenmagConnect.cpp" />
     <ClCompile Include="SenmagConnect\SerialComms.cpp" />
     <ClCompile Include="WindowScanner.cpp" />
+    <ClCompile Include="WindowWallObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ButtonObject.h" />
     <ClInclude Include="dataTypes.h" />
+    <ClInclude Include="GravityWellObject.h" />
     <ClInclude Include="HapticObjects\FFUIDesktop_object.h" />
     <ClInclude Include="HapticObjects\HapticVibration.h" />
     <ClInclude Include="HapticObjects\SolidPlane.h" />
@@ -160,6 +163,7 @@
     <ClInclude Include="SenmagConnect\DeviceManager.h" />
     <ClInclude Include="SenmagConnect\SenmagConnect.h" />
     <ClInclude Include="SenmagConnect\SerialComms.h" />
+    <ClInclude Include="WindowWallObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

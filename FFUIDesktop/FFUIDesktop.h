@@ -4,16 +4,27 @@
 #include "mathTypes.h"
 #include <windows.h>
 #include "SenmagConnect.h"
-#include <thread> // Ensure this is included
+#include <thread> 
 #include <stop_token>
-
 #include "DeviceManager.h"
 
 #include "HapticVibration.h"
 #include "SolidPlane.h"
 #include "ButtonObject.h"
-#define DEVICE_WORKSPACE_X	300
-#define DEVICE_WORKSPACE_Y	250
+#include <sapi.h>
+//We use these libraries to upgrade what the console can print with wcout
+#include <fcntl.h>
+#include <io.h>
+
+
+#define DEVICE_WORKSPACE_X	250
+#define DEVICE_WORKSPACE_Y	180
+
+//The range of the z axis values that the device reaches (not counting the front wall)
+#define startZ	124.0f
+#define endZ	268.0f
+
+# define roomDepth 50
 
 
 #define DEVICE_WORKSPACE_OFFSETX	0
@@ -21,11 +32,21 @@
 
 #define SCROLL_REPEAT_RATE	10			//scroll ops per second
 
-// Inside your main Manager class (e.g., FFUIDesktop.h)
+
+
+#include <atomic>
+
+inline ISpVoice* pSapiVoice = nullptr;
+
+
+inline std::atomic<bool> focusRequested{ false };
+inline Vector2 focusPixelTarget{ 0, 0 };
+inline std::string lastFocusedObjectName = ""; // To prevent NVDA from stuttering
+
 
 struct SnapAnchor {
 	bool isTracking = false;
-	std::wstring objectWindowsName;
+	std::string objectWindowsName;
 	Vector3 originalPosition = Vector3(0, 0, 0);
 };
 
@@ -68,11 +89,12 @@ public:
 	std::mutex objectsListMutex;
 
 	std::vector<std::unique_ptr<FFUIObject>> objects;
+	static inline FFUIDesktop_Config	desktopConfig;
 
 private:
+	//bool button3Clicked = false;
 
 	void addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList);
-	FFUIDesktop_Config	desktopConfig;
 
 	bool stylusSnapped = false;
 

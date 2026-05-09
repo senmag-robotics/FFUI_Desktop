@@ -5,11 +5,14 @@
 #include <memory>
 #include "../mathTypes.h"
 #include <Windows.h> 
-
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib") // Tells Visual Studio to link the DWM library
 #pragma comment(lib, "oleaut32.lib")
 
 // Types of UI elements we can detect
 enum class UIElementType {
+    ScreenBoundary,
+    GravityWell,
     Unknown,
     DesktopIcon,
     TaskbarIcon,
@@ -19,7 +22,7 @@ enum class UIElementType {
     TextField,
     ScrollBar,
     ListItem,
-    NoFilter
+    NoFilter,
 };
 
 struct ScannedUIElement {
@@ -46,24 +49,24 @@ public:
     bool initialize();
     void shutdown();
 
-    std::vector<ScannedUIElement> scanDesktop(std::vector<UIElementType> typesToScan);
+    std::vector<ScannedUIElement> scanDesktop(const std::vector<UIElementType>& typesToScan);
 
     std::vector<ScannedUIElement> scanFocusedWindow(const std::vector<UIElementType>& typesToScan);
 
-    std::vector<ScannedUIElement> scanTaskBar(std::vector<UIElementType> typesToScan);
+    std::vector<ScannedUIElement> scanTaskBar(const std::vector<UIElementType>& typesToScan);
 
-    //std::vector<ScannedUIElement> scanTaskbarIcons();
+    std::vector<ScannedUIElement> fetchAllOpenWindows();
 
-    //void scanWindow(HWND hwnd);
-    //ScannedUIElement getElementAt(int x, int y);
+  
 
-
-
+    std::vector<HWND> foundWindowHandles;
 
 private:
     IUIAutomation* pAutomation = nullptr;
-
     UIElementType mapControlType(int controlTypeId);
+
+    //An old style helper function to filter fetched windows from the old API function: EnumWindows()
+    static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 
 
     void processElement(IUIAutomationElement* pElement,
@@ -75,3 +78,4 @@ private:
         bool recurse,
         const std::vector<UIElementType>& typesToScan);
 };
+
