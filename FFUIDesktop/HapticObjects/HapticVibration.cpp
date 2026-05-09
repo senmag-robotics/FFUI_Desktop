@@ -43,9 +43,12 @@ float HapticVibration::processVibration() {
 	lastUpdate = std::chrono::steady_clock::now();
 
 	vibrationProgress += (timestep / 1000000.0) * vibSettings.frequency;
-	while (vibrationProgress > 1) {
-		vibrationProgress -= 1;
+	if (vibrationProgress > 1) {
+		vibrationProgress -= (int)vibrationProgress;
 	}
+	//while (vibrationProgress > 1) {
+	//	vibrationProgress -= 1;
+	//}
 
 
 
