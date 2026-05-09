@@ -28,7 +28,7 @@ void main(void) {
 
 	while (1) {
 		ffuiDesktop.updateFrame();
-		
+
 		//Sleep(10);
 	}
 
