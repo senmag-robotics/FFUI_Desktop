@@ -3,6 +3,7 @@
 #include "WindowScanner.h"
 #include <thread>
 #include <iostream>
+#include <chrono>
 
 
 // Define static member
@@ -53,6 +54,22 @@ void FFUIDesktop::initDesktop(FFUIDesktop_Config config) {
 	while (!stoken.stop_requested()) {
 
 
+
+		//static auto lastTime = std::chrono::high_resolution_clock::now();
+		//static int frameCount = 0;
+
+		//frameCount++;
+		//auto currentTime = std::chrono::high_resolution_clock::now();
+		//std::chrono::duration<double> elapsed = currentTime - lastTime;
+
+		//if (elapsed.count() >= 1.0) {
+		//	double currentHz = frameCount / elapsed.count();
+
+		////	printf("Scanner Thread Frequency: %.2f Hz\n", currentHz);
+
+		//	frameCount = 0;
+		//	lastTime = currentTime;
+		//}
 
 
 
@@ -384,6 +401,25 @@ void FFUIDesktop::updateFrame() {
 	for (int x = 0; x < deviceManager.devices.size(); x++) {
 		if (deviceManager.devices[x].newStatus) {
 			if (deviceManager.devices[x].deviceStatus.position[2] > 100) {	//only process 'active' devices
+
+
+
+
+				//static auto lastTime = std::chrono::high_resolution_clock::now();
+				//static int frameCount = 0;
+
+				//frameCount++;
+				//auto currentTime = std::chrono::high_resolution_clock::now();
+				//std::chrono::duration<double> elapsed = currentTime - lastTime;
+
+				//if (elapsed.count() >= 1.0) {
+				//	double currentHz = frameCount / elapsed.count();
+
+				//	//printf("Haptics Thread Frequency: %.2f Hz\n", currentHz);
+
+				//	frameCount = 0;
+				//	lastTime = currentTime;
+				//}
 
 				//Fetching the device 3d position and orientation
 				Location deviceLoc;

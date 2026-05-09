@@ -92,6 +92,7 @@ public:
 	static inline FFUIDesktop_Config	desktopConfig;
 
 private:
+	//bool button3Clicked = false;
 
 	void addBoundaryPlanes(std::vector<std::unique_ptr<FFUIObject>>& targetList);
 

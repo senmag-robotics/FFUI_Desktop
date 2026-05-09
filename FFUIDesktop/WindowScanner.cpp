@@ -1,5 +1,6 @@
 #include "WindowScanner.h"
 #include <atlbase.h>
+#include <chrono>
 
 WindowScanner::WindowScanner() {}
 
@@ -10,22 +11,23 @@ WindowScanner::~WindowScanner() {
 UIElementType WindowScanner::mapControlType(int controlTypeId) {
     switch (controlTypeId) {
     case UIA_ButtonControlTypeId:    return UIElementType::Button;
-    case UIA_WindowControlTypeId:    return UIElementType::Window;
-    case UIA_MenuItemControlTypeId:  return UIElementType::MenuItem;
-    case UIA_CheckBoxControlTypeId:  return UIElementType::Button;
-    case UIA_TreeItemControlTypeId:  return UIElementType::ListItem;
-    case UIA_ComboBoxControlTypeId:  return UIElementType::Button;
 
+    case UIA_CheckBoxControlTypeId:  return UIElementType::Button;
+    case UIA_ComboBoxControlTypeId:  return UIElementType::Button;
+    case UIA_TreeItemControlTypeId:  return UIElementType::ListItem;
     case UIA_ListItemControlTypeId:  return UIElementType::ListItem;
     case UIA_TabItemControlTypeId:  return UIElementType::ListItem;
+    case UIA_MenuItemControlTypeId:  return UIElementType::MenuItem;
+    case UIA_EditControlTypeId:      return UIElementType::TextField;
 
     //case UIA_TabItemControlTypeId:   return UIElementType::Tab;
     //case UIA_HyperlinkControlTypeId: return UIElementType::Hyperlink;
-    case UIA_EditControlTypeId:      return UIElementType::TextField;
     //case UIA_CheckBoxControlTypeId:  return UIElementType::Checkbox;
     //case UIA_RadioButtonControlTypeId: return UIElementType::RadioButton;
     //case UIA_SliderControlTypeId:    return UIElementType::Slider;
     case UIA_PaneControlTypeId: return UIElementType::Window;
+    case UIA_WindowControlTypeId:    return UIElementType::Window;
+
     case UIA_ScrollBarControlTypeId: return UIElementType::ScrollBar;
     case UIA_HyperlinkControlTypeId: return UIElementType::Button;
     default:                         return UIElementType::Unknown;
@@ -142,7 +144,7 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
         elem.size.y = (float)(rect.bottom - rect.top);
     }
 
-    int controlType;
+    int controlType;   
     if (SUCCEEDED(pElement->get_CurrentControlType(&controlType))) {
         elem.controlTypeId = controlType;
         elem.type = mapControlType(controlType);
@@ -154,7 +156,9 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
         elem.isEnabled = (enabled == TRUE); //To convert from BOOL (Integer) to bool
     }
 
-   
+
+       
+    
 
     UIA_HWND hwnd;
     if (SUCCEEDED(pElement->get_CurrentNativeWindowHandle(&hwnd))) {
@@ -162,10 +166,13 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
     }
     bool typeMatch = typesToScan.empty() || hasElement(typesToScan, elem.type);
 
+
+  
     if (typeMatch) { 
       
+         
      //   if (IsElementClickable(pElement)) {
-            results.push_back(elem);
+        results.push_back(elem);
       //  }
     }
     /*    filterType == UIElementType::NoFilter || elem.type == filterType)*/
@@ -228,7 +235,9 @@ std::vector<ScannedUIElement> WindowScanner::scanFocusedWindow(const std::vector
     }
 
     return results;
-    
+
+
+
 }
 
 std::vector<ScannedUIElement> WindowScanner::scanTaskBar(const std::vector<UIElementType>& typesToScan) {

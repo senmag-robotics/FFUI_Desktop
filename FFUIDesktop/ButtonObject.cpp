@@ -64,6 +64,7 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
         // We ensure we don't exceed the stiffness of a 'stabilityFactor' sized button
         float effectiveStiffness = (objectMeta.hapticSolidProperties.stiffness * 13) / stabilityFactor;
 
+
         force = toCenter * (effectiveStiffness);
         force.z = 0;
 

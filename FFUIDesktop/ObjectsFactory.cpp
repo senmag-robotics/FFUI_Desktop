@@ -292,7 +292,7 @@ std::vector<std::unique_ptr<FFUIObject>> ObjectFactory::createObjectsFromUIEleme
             objectMeta.scale = Vector3(
                 elem.size.x / config.screenSize.x * DEVICE_WORKSPACE_X,
                 elem.size.y / config.screenSize.y * DEVICE_WORKSPACE_Y,
-                78);  // Z depth for haptic interaction
+                110);  
 
 
             objectMeta.orientation = Quaternion().setFromEuler(1, 0, 0);
