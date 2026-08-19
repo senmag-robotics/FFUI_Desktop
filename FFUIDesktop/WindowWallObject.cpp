@@ -177,7 +177,20 @@ void WindowManager::bringWindowToFront(WindowWallObject* targetWindow) {
 
     AttachThreadInput(dwCurID, dwMyID, TRUE);
 
-    if (IsIconic(hwnd)) {
+    //Swapping to an application maximises it, so its UI elements always occupy the whole
+    //screen. That keeps the mapping from screen space to the haptic workspace consistent
+    //between applications - a button is in the same place in the virtual environment
+    //regardless of what size the user last left the window at.
+    //Windows with no maximise box or no resizable frame (dialogs, fixed size tool windows)
+    //are left alone, since forcing those to maximise misplaces or mis-sizes them.
+    LONG_PTR windowStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
+    bool canMaximise = (windowStyle & WS_MAXIMIZEBOX) && (windowStyle & WS_THICKFRAME);
+
+    if (canMaximise) {
+        //SW_MAXIMIZE also un-minimises, so this covers the iconic case too.
+        if (!IsZoomed(hwnd)) ShowWindow(hwnd, SW_MAXIMIZE);
+    }
+    else if (IsIconic(hwnd)) {
         ShowWindow(hwnd, SW_RESTORE);
     }
 
