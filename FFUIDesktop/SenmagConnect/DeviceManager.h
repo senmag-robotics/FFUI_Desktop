@@ -30,15 +30,20 @@ public:
 
 
 	std::vector<SenmagDevice> devices;
-		
-	
+
+
 	DWORD	numD2XXDevs;
 private:
 
 	void regenerateDeviceList();
 	void checkDeviceUpdates();
 
-
-
+	//Throttles how often update() looks for newly-connected/removed hardware (FT_CreateDeviceInfoList,
+	//and regenerateDeviceList()'s FT_Open calls whenever the count changes) - see update()'s own
+	//comment for why this used to run on every single call (up to ~500/sec) and what that caused.
+	//Telemetry polling for already-open devices in checkDeviceUpdates() is NOT throttled by this -
+	//it still runs every call, same as before.
+	std::chrono::steady_clock::time_point nextDeviceScanTime{};
+	static constexpr std::chrono::seconds DEVICE_SCAN_INTERVAL{ 1 };
 
 };

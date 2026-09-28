@@ -1,6 +1,7 @@
 #include "WindowScanner.h"
 #include <atlbase.h>
 #include <chrono>
+#include <oleauto.h>   //for VariantInit()/VariantClear() - see buildTypeCondition()'s own use
 
 WindowScanner::WindowScanner() {}
 
@@ -204,6 +205,173 @@ void WindowScanner::processElement(IUIAutomationElement* pElement,
     processElement(pElement, results, recurse, {});
 }
 
+//See this method's own header comment. Every raw UIA control-type ID mapControlType() actually
+//maps to something other than Unknown - kept as one flat list here (rather than, say, a
+//std::multimap<UIElementType,int>) since it only needs to be walked once per scan and the whole
+//point is avoiding per-element COM overhead, not code elegance for a dozen constant ints.
+IUIAutomationCondition* WindowScanner::buildTypeCondition(const std::vector<UIElementType>& typesToScan) {
+    if (!pAutomation) return nullptr;
+
+    if (typesToScan.empty()) {
+        //"empty means no filter" - see processElement()'s own hasElement() calls for where this
+        //convention originates.
+        IUIAutomationCondition* pTrue = nullptr;
+        pAutomation->CreateTrueCondition(&pTrue);
+        return pTrue;
+    }
+
+    static const int kAllMappedControlTypeIds[] = {
+        UIA_ButtonControlTypeId, UIA_CheckBoxControlTypeId, UIA_ComboBoxControlTypeId, UIA_HyperlinkControlTypeId,
+        UIA_TreeItemControlTypeId, UIA_ListItemControlTypeId, UIA_TabItemControlTypeId,
+        UIA_MenuItemControlTypeId,
+        UIA_EditControlTypeId,
+        UIA_PaneControlTypeId, UIA_WindowControlTypeId,
+        UIA_ScrollBarControlTypeId,
+    };
+
+    IUIAutomationCondition* combined = nullptr;
+    for (int controlTypeId : kAllMappedControlTypeIds) {
+        if (!hasElement(typesToScan, mapControlType(controlTypeId))) continue;
+
+        VARIANT v;
+        VariantInit(&v);
+        v.vt = VT_I4;
+        v.lVal = controlTypeId;
+
+        IUIAutomationCondition* pCond = nullptr;
+        HRESULT hr = pAutomation->CreatePropertyCondition(UIA_ControlTypePropertyId, v, &pCond);
+        VariantClear(&v);
+        if (FAILED(hr) || !pCond) continue;
+
+        if (!combined) {
+            combined = pCond;
+        }
+        else {
+            //IUIAutomation only ORs two conditions at a time - fold the growing list left,
+            //releasing each intermediate as it's subsumed into the next.
+            IUIAutomationCondition* pOr = nullptr;
+            if (SUCCEEDED(pAutomation->CreateOrCondition(combined, pCond, &pOr)) && pOr) {
+                combined->Release();
+                pCond->Release();
+                combined = pOr;
+            }
+            else {
+                pCond->Release();
+            }
+        }
+    }
+
+    if (!combined) {
+        //typesToScan didn't match any type this function knows how to express as a raw UIA
+        //control type (shouldn't normally happen given the two enums are meant to line up) -
+        //fall back to matching everything rather than a condition that silently matches nothing.
+        pAutomation->CreateTrueCondition(&combined);
+    }
+
+    return combined;
+}
+
+//See this method's own header comment - the actual latency fix. One FindAllBuildCache() call
+//replaces what used to be a full recursive TreeWalker descent (one navigation COM call per step)
+//with six more get_Current*() COM calls at every single element visited, whether or not it ended
+//up matching typesToScan.
+void WindowScanner::findAllWithCache(IUIAutomationElement* pRoot, TreeScope scope,
+    const std::vector<UIElementType>& typesToScan, std::vector<ScannedUIElement>& results) {
+
+    if (!pAutomation || !pRoot) return;
+
+    IUIAutomationCondition* pCondition = buildTypeCondition(typesToScan);
+    if (!pCondition) return;
+
+    IUIAutomationCacheRequest* pCacheRequest = nullptr;
+    if (FAILED(pAutomation->CreateCacheRequest(&pCacheRequest)) || !pCacheRequest) {
+        pCondition->Release();
+        return;
+    }
+
+    //None, not Full - appendCachedElement() only ever reads get_Cached*() properties off these
+    //elements, never get_Current*(), so there's no need to pay for a live provider-side proxy per
+    //returned element. This is itself part of the win, on top of batching the property fetches.
+    pCacheRequest->put_AutomationElementMode(AutomationElementMode_None);
+    pCacheRequest->AddProperty(UIA_NamePropertyId);
+    pCacheRequest->AddProperty(UIA_ClassNamePropertyId);
+    pCacheRequest->AddProperty(UIA_BoundingRectanglePropertyId);
+    pCacheRequest->AddProperty(UIA_ControlTypePropertyId);
+    pCacheRequest->AddProperty(UIA_IsEnabledPropertyId);
+    pCacheRequest->AddProperty(UIA_NativeWindowHandlePropertyId);
+
+    IUIAutomationElementArray* pFound = nullptr;
+    HRESULT hr = pRoot->FindAllBuildCache(scope, pCondition, pCacheRequest, &pFound);
+
+    pCondition->Release();
+    pCacheRequest->Release();
+
+    if (FAILED(hr) || !pFound) return;
+
+    int count = 0;
+    pFound->get_Length(&count);
+    if (count > 0) {
+        results.reserve(results.size() + count);
+    }
+
+    for (int i = 0; i < count; ++i) {
+        IUIAutomationElement* pElement = nullptr;
+        if (FAILED(pFound->GetElement(i, &pElement)) || !pElement) continue;
+        appendCachedElement(pElement, results);
+        pElement->Release();
+    }
+
+    pFound->Release();
+}
+
+//See this method's own header comment. Mirrors processElement()'s property-reading half exactly,
+//property for property, just against the get_Cached*() variants instead of get_Current*() - the
+//actual ScannedUIElement shape callers see is unchanged either way.
+void WindowScanner::appendCachedElement(IUIAutomationElement* pElement, std::vector<ScannedUIElement>& results) {
+    if (!pElement) return;
+
+    ScannedUIElement elem{};
+
+    BSTR name = nullptr;
+    if (SUCCEEDED(pElement->get_CachedName(&name)) && name) {
+        elem.name = name;
+        SysFreeString(name);
+    }
+
+    BSTR className = nullptr;
+    if (SUCCEEDED(pElement->get_CachedClassName(&className)) && className) {
+        elem.containerWindowName = className;
+        SysFreeString(className);
+    }
+
+    RECT rect;
+    if (SUCCEEDED(pElement->get_CachedBoundingRectangle(&rect))) {
+        elem.boundingRect = rect;
+        elem.center.x = (float)(rect.left + rect.right) / 2.0f;
+        elem.center.y = (float)(rect.top + rect.bottom) / 2.0f;
+        elem.size.x = (float)(rect.right - rect.left);
+        elem.size.y = (float)(rect.bottom - rect.top);
+    }
+
+    int controlType = 0;
+    if (SUCCEEDED(pElement->get_CachedControlType(&controlType))) {
+        elem.controlTypeId = controlType;
+        elem.type = mapControlType(controlType);
+    }
+
+    BOOL enabled = FALSE;
+    if (SUCCEEDED(pElement->get_CachedIsEnabled(&enabled))) {
+        elem.isEnabled = (enabled == TRUE);
+    }
+
+    UIA_HWND hwnd = 0;
+    if (SUCCEEDED(pElement->get_CachedNativeWindowHandle(&hwnd))) {
+        elem.hwnd = (HWND)hwnd;
+    }
+
+    results.push_back(elem);
+}
+
 //We get the root element in the desktop, then we traverse all of its children
 std::vector<ScannedUIElement> WindowScanner::scanDesktop(const std::vector<UIElementType>& typesToScan) {
     std::vector<ScannedUIElement> results;
@@ -228,8 +396,11 @@ std::vector<ScannedUIElement> WindowScanner::scanFocusedWindow(const std::vector
     IUIAutomationElement* windowElement = nullptr;
     HRESULT hr = pAutomation->ElementFromHandle(focusedWindowHandle, &windowElement);
     if (SUCCEEDED(hr) && windowElement) {
-    
-        processElement(windowElement, results, true, typesToScan);
+
+        //TreeScope_Subtree (not just Descendants) to match the old processElement(recurse=true)
+        //behavior of checking the root element itself as well as recursing into it - see
+        //findAllWithCache()'s own comment for what this call replaces and why.
+        findAllWithCache(windowElement, TreeScope_Subtree, typesToScan, results);
 
         windowElement->Release();
     }
@@ -265,7 +436,9 @@ std::vector<ScannedUIElement> WindowScanner::scanTaskBar(const std::vector<UIEle
 
     if (SUCCEEDED(hr) && taskbarElement && !isTaskbarOffScreen) {
 
-        processElement(taskbarElement, results, true, typesToScan);
+        //Same TreeScope_Subtree reasoning as scanFocusedWindow() - see findAllWithCache()'s own
+        //comment.
+        findAllWithCache(taskbarElement, TreeScope_Subtree, typesToScan, results);
 
         taskbarElement->Release();
     }
@@ -307,27 +480,41 @@ BOOL CALLBACK WindowScanner::EnumWindowsProc(HWND hwnd, LPARAM lParam) {
 
 std::vector<ScannedUIElement> WindowScanner::fetchAllOpenWindows() {
     std::vector<ScannedUIElement> windows;
+    if (!pAutomation) return windows;
+
     std::vector<HWND> localHandles;
 
     EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&localHandles));
 
-    //We loop through all the handles and create ScannedUIEelments of each
-    //using processElement. 
+    //One cached property set per open window, fetched in the SAME ElementFromHandleBuildCache
+    //call that finds the element - previously this was ElementFromHandle() (1 call) followed by
+    //processElement()'s own six separate get_Current*() calls, so this turns 7 round trips per
+    //open window into 1. No subtree search needed here (recurse was always false - each window's
+    //own root element is the only thing this method has ever wanted), so this skips
+    //findAllWithCache()/buildTypeCondition() entirely and just builds the cache request directly.
+    IUIAutomationCacheRequest* pCacheRequest = nullptr;
+    if (FAILED(pAutomation->CreateCacheRequest(&pCacheRequest)) || !pCacheRequest) return windows;
+
+    pCacheRequest->put_AutomationElementMode(AutomationElementMode_None);
+    pCacheRequest->AddProperty(UIA_NamePropertyId);
+    pCacheRequest->AddProperty(UIA_ClassNamePropertyId);
+    pCacheRequest->AddProperty(UIA_BoundingRectanglePropertyId);
+    pCacheRequest->AddProperty(UIA_ControlTypePropertyId);
+    pCacheRequest->AddProperty(UIA_IsEnabledPropertyId);
+    pCacheRequest->AddProperty(UIA_NativeWindowHandlePropertyId);
+
+    windows.reserve(localHandles.size());
     for (HWND hwnd : localHandles) {
         IUIAutomationElement* pWindowElement = nullptr;
-        HRESULT hr = pAutomation->ElementFromHandle(hwnd, &pWindowElement);
+        HRESULT hr = pAutomation->ElementFromHandleBuildCache(hwnd, pCacheRequest, &pWindowElement);
 
         if (SUCCEEDED(hr) && pWindowElement) {
-
-            processElement(pWindowElement, windows, false);
-
-     
+            appendCachedElement(pWindowElement, windows);
+            pWindowElement->Release();
         }
+    }
 
-        pWindowElement->Release();
-
-     }
-    
+    pCacheRequest->Release();
 
     return windows;
 }

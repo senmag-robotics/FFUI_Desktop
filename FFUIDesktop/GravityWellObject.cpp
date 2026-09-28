@@ -59,12 +59,13 @@ Vector3 GravityWellObject::calculateInteractionForce(Location localLoc) {
             force = force.normalized() * forceLimit;
         }
 
-        //Speak the name
-        WindowManager::getInstance().speakWindowName(L"slot of " + correspondingWindowMeta.windowTitle);
+        //Narrate which slot the stylus is currently hovering while grabbing/dragging a window -
+        //same Slot-N/app-name rule as ordinary focus narration, no special-cased phrasing.
+        WindowManager::getInstance().narrateWindowFocus(correspondingWindowMeta.windowHandle);
 
     }
     else {
-        WindowManager::getInstance().resetSpokenWindowName(L"slot of " + correspondingWindowMeta.windowTitle);
+        WindowManager::getInstance().resetNarratedWindow(correspondingWindowMeta.windowHandle);
     }
 
     return force;

@@ -25,6 +25,12 @@
     <Filter Include="HapticObjects\Source">
       <UniqueIdentifier>{d4447dfc-eb91-45ce-b465-9e98f72ac3f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="VoiceAssistant">
+      <UniqueIdentifier>{a1c9e6b2-3f5d-4e8a-9b7c-2d6f1e8a4c3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{5b7e8f1a-2c4d-4a6e-9f0b-1d3c5e7a9b2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -50,6 +56,57 @@
     </ClCompile>
     <ClCompile Include="HapticObjects\HapticVibration.cpp">
       <Filter>HapticObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="HapticObjects\CursorStateHaptics.cpp">
+      <Filter>HapticObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="VoiceAssistant.cpp">
+      <Filter>VoiceAssistant</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioCapture.cpp">
+      <Filter>VoiceAssistant</Filter>
+    </ClCompile>
+    <ClCompile Include="SpeechRecognizer.cpp">
+      <Filter>VoiceAssistant</Filter>
+    </ClCompile>
+    <ClCompile Include="ClaudeCliClient.cpp">
+      <Filter>VoiceAssistant</Filter>
+    </ClCompile>
+    <ClCompile Include="AssistantSetup.cpp">
+      <Filter>VoiceAssistant</Filter>
+    </ClCompile>
+    <ClCompile Include="SetupConfirmationPrompt.cpp">
+      <Filter>VoiceAssistant</Filter>
+    </ClCompile>
+    <ClCompile Include="WhisperTranscriber.cpp">
+      <Filter>VoiceAssistant</Filter>
+    </ClCompile>
+    <ClCompile Include="GridTileObject.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="VoiceSettingsManager.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuSystem.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="QuickSlotsSettingsManager.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgramLauncher.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="StartMenuFlow.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="AppConfig.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="TutorialFlow.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="NarrateFlow.cpp">
+      <Filter>Settings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +145,63 @@
     </ClInclude>
     <ClInclude Include="HapticObjects\HapticVibration.h">
       <Filter>HapticObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="HapticObjects\CursorStateHaptics.h">
+      <Filter>HapticObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="VoiceAssistant.h">
+      <Filter>VoiceAssistant</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioCapture.h">
+      <Filter>VoiceAssistant</Filter>
+    </ClInclude>
+    <ClInclude Include="SpeechRecognizer.h">
+      <Filter>VoiceAssistant</Filter>
+    </ClInclude>
+    <ClInclude Include="ClaudeCliClient.h">
+      <Filter>VoiceAssistant</Filter>
+    </ClInclude>
+    <ClInclude Include="AssistantSetup.h">
+      <Filter>VoiceAssistant</Filter>
+    </ClInclude>
+    <ClInclude Include="SetupConfirmationPrompt.h">
+      <Filter>VoiceAssistant</Filter>
+    </ClInclude>
+    <ClInclude Include="WhisperTranscriber.h">
+      <Filter>VoiceAssistant</Filter>
+    </ClInclude>
+    <ClInclude Include="GridTileObject.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="VoiceSettingsManager.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuSystem.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="DetentTuning.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="QuickSlotsSettingsManager.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramLauncher.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="StartMenuFlow.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="AppConfig.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="TutorialFlow.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="NarrateFlow.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="UiaShared.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -10,7 +10,18 @@ public:
     ButtonObject(FFUIObject_Meta meta);
     Vector3 calculateInteractionForce(Location localLoc) override;
 
+    //True the instant this button/list item/menu item's own calculateInteractionForce() ran and
+    //found the stylus within its bounds this tick - mirrors WindowWallMeta::stylusOnThis/
+    //GridTileObject::stylusIsOnThis() exactly (see either's own comment). Added for the Narrate
+    //feature (NARRATE_SPEC.md) - these scanned third-party elements had no "is the stylus
+    //currently on this one" signal at all before this, since the old calculateForceToClosestObject()
+    //"snap" mechanism this might otherwise have reused is dead code today (see its own comment in
+    //FFUIDesktop.cpp - no longer called from anywhere).
+    bool stylusIsOnThis() const { return stylusOnThis; }
+
 private:
+
+    bool stylusOnThis = false;
 
     float attractionRadius = 0.0f;  // Distance at which attraction starts (starting from edge)
     float attractionStrength = 0.002f;  // Force magnitude

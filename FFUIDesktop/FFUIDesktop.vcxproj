@@ -137,6 +137,7 @@
     <ClCompile Include="HapticObjects\FFUIDesktop_object.cpp" />
     <ClCompile Include="HapticObjects\HapticVibration.cpp" />
     <ClCompile Include="HapticObjects\SolidPlane.cpp" />
+    <ClCompile Include="HapticObjects\CursorStateHaptics.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="FFUIDesktop.cpp" />
     <ClCompile Include="ObjectsFactory.cpp" />
@@ -145,6 +146,22 @@
     <ClCompile Include="SenmagConnect\SerialComms.cpp" />
     <ClCompile Include="WindowScanner.cpp" />
     <ClCompile Include="WindowWallObject.cpp" />
+    <ClCompile Include="VoiceAssistant.cpp" />
+    <ClCompile Include="AudioCapture.cpp" />
+    <ClCompile Include="SpeechRecognizer.cpp" />
+    <ClCompile Include="ClaudeCliClient.cpp" />
+    <ClCompile Include="AssistantSetup.cpp" />
+    <ClCompile Include="SetupConfirmationPrompt.cpp" />
+    <ClCompile Include="WhisperTranscriber.cpp" />
+    <ClCompile Include="GridTileObject.cpp" />
+    <ClCompile Include="VoiceSettingsManager.cpp" />
+    <ClCompile Include="MenuSystem.cpp" />
+    <ClCompile Include="QuickSlotsSettingsManager.cpp" />
+    <ClCompile Include="ProgramLauncher.cpp" />
+    <ClCompile Include="StartMenuFlow.cpp" />
+    <ClCompile Include="AppConfig.cpp" />
+    <ClCompile Include="TutorialFlow.cpp" />
+    <ClCompile Include="NarrateFlow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ButtonObject.h" />
@@ -153,6 +170,7 @@
     <ClInclude Include="HapticObjects\FFUIDesktop_object.h" />
     <ClInclude Include="HapticObjects\HapticVibration.h" />
     <ClInclude Include="HapticObjects\SolidPlane.h" />
+    <ClInclude Include="HapticObjects\CursorStateHaptics.h" />
     <ClInclude Include="ObjectsFactory.h" />
     <ClInclude Include="WIndowScanner.h" />
     <ClInclude Include="main.h" />
@@ -164,6 +182,24 @@
     <ClInclude Include="SenmagConnect\SenmagConnect.h" />
     <ClInclude Include="SenmagConnect\SerialComms.h" />
     <ClInclude Include="WindowWallObject.h" />
+    <ClInclude Include="VoiceAssistant.h" />
+    <ClInclude Include="AudioCapture.h" />
+    <ClInclude Include="SpeechRecognizer.h" />
+    <ClInclude Include="ClaudeCliClient.h" />
+    <ClInclude Include="AssistantSetup.h" />
+    <ClInclude Include="SetupConfirmationPrompt.h" />
+    <ClInclude Include="WhisperTranscriber.h" />
+    <ClInclude Include="GridTileObject.h" />
+    <ClInclude Include="VoiceSettingsManager.h" />
+    <ClInclude Include="MenuSystem.h" />
+    <ClInclude Include="DetentTuning.h" />
+    <ClInclude Include="QuickSlotsSettingsManager.h" />
+    <ClInclude Include="ProgramLauncher.h" />
+    <ClInclude Include="StartMenuFlow.h" />
+    <ClInclude Include="AppConfig.h" />
+    <ClInclude Include="TutorialFlow.h" />
+    <ClInclude Include="NarrateFlow.h" />
+    <ClInclude Include="UiaShared.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

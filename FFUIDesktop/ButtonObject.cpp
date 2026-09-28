@@ -58,6 +58,11 @@ Vector3 ButtonObject::calculateInteractionForce(Location localLoc) {
     bool withinY = std::abs(stylusPosition.y) < yAttractionRange - boundaryMinimizationRange;
     bool withinZ = std::abs(stylusPosition.z) < zAttractionRange - boundaryMinimizationRange; // works for small or large
 
+    //Geometric "is the stylus on this element" hit test, independent of the (unrelated, and
+    //currently always-true) !currentSnapAnchor.isTracking force-suppression check just below -
+    //see this flag's own header comment for why it exists (the Narrate feature, NARRATE_SPEC.md).
+    stylusOnThis = withinX && withinY && withinZ;
+
     if (withinX && withinY && withinZ && !FFUIDesktop::currentSnapAnchor.isTracking) {
         float maxForce = objectMeta.hapticSolidProperties.solidForceLimit;
 
